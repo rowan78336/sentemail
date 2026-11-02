@@ -1,0 +1,2569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🍼 给妙妙赚NeiNei · 爸爸的奶粉钱作战系统</title>
+<meta name="description" content="纯前端外贸开发信工作台 · 数据 100% 保存在你自己的浏览器里">
+<meta name="theme-color" content="#2E7D4F">
+
+<!-- ============ 依赖：全部 CDN，零构建、零后端 ============ -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  window.tailwind && (tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: { 50:'#F2FAF5', 100:'#EAF7EE', 200:'#D5EADF', 300:'#B7DCC8', 400:'#7FBF9B', 500:'#4CAF7D', 600:'#2E7D4F', 700:'#1F3D2B' },
+          cream: '#FAF8F3',
+          ink: '#22302A'
+        }
+      }
+    }
+  });
+</script>
+<script>
+  window.__loadXlsxFallback = function () {
+    var s = document.createElement('script');
+    s.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+    document.head.appendChild(s);
+  };
+  window.__loadConfettiFallback = function () {
+    var s = document.createElement('script');
+    s.src = 'https://unpkg.com/canvas-confetti@1.9.3/dist/confetti.browser.min.js';
+    document.head.appendChild(s);
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" onerror="window.__loadXlsxFallback()"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" onerror="window.__loadConfettiFallback()"></script>
+
+<style>
+  :root{
+    --brand:#2E7D4F; --brand-dark:#1F3D2B; --brand-soft:#4CAF7D;
+    --mint:#EAF7EE; --mint-2:#F4FBF6; --line:#D5EADF;
+    --pink:#E91E63; --pink-soft:#FCE4EC; --amber:#E65100;
+    --red:#C0392B; --red-soft:#FADBD8;
+    --ink:#22302A; --ink2:#5B6B63; --ink3:#8A9A92;
+    --cream:#FAF8F3; --card:#FFFFFF;
+    --shadow:0 1px 2px rgba(34,48,42,.04), 0 8px 24px -12px rgba(34,48,42,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    background:var(--cream); color:var(--ink); -webkit-font-smoothing:antialiased; font-size:14px;
+  }
+  .hidden{display:none !important}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:#CFDED6;border-radius:6px}
+  ::-webkit-scrollbar-thumb:hover{background:#B7CFC1}
+  ::-webkit-scrollbar-track{background:transparent}
+
+  /* ---------- 骨架布局（即便 Tailwind 未加载也不会塌） ---------- */
+  .app{display:flex;align-items:flex-start;min-height:100vh}
+  #sidebar{
+    width:344px;flex:0 0 344px;height:100vh;position:sticky;top:0;overflow-y:auto;overflow-x:hidden;
+    background:#fff;border-right:1px solid var(--line);padding:16px 14px 48px;z-index:40;
+  }
+  main{flex:1 1 auto;min-width:0;padding:18px 26px 70px;max-width:1200px;margin:0 auto;width:100%}
+  #scrim{display:none}
+  @media (max-width:1023px){
+    #sidebar{position:fixed;left:0;top:0;transform:translateX(-102%);transition:transform .26s cubic-bezier(.4,0,.2,1);box-shadow:0 10px 40px rgba(0,0,0,.18)}
+    #sidebar.open{transform:none}
+    #scrim.show{display:block;position:fixed;inset:0;background:rgba(20,32,26,.35);z-index:35;backdrop-filter:blur(2px)}
+    main{padding:14px 14px 64px}
+  }
+
+  /* ---------- 品牌头部 ---------- */
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 4px 14px}
+  .brand-logo{width:42px;height:42px;flex:0 0 42px;border-radius:14px;background:linear-gradient(140deg,#DFF3E6,#B7DCC8);
+    display:grid;place-items:center;font-size:22px;box-shadow:inset 0 0 0 1px rgba(46,125,79,.12)}
+  .brand-title{font-size:16px;font-weight:800;letter-spacing:.2px;line-height:1.2}
+  .brand-sub{font-size:11px;color:var(--ink3);margin-top:3px;letter-spacing:.3px}
+
+  /* ---------- 折叠面板 ---------- */
+  details.panel{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:box-shadow .2s}
+  details.panel[open]{box-shadow:0 2px 12px -6px rgba(46,125,79,.25)}
+  details.panel > summary{
+    list-style:none;cursor:pointer;padding:10px 12px;font-weight:700;font-size:13.5px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;user-select:none;background:#fff;transition:background .15s;
+  }
+  details.panel > summary:hover{background:var(--mint-2)}
+  details.panel > summary::-webkit-details-marker{display:none}
+  details.panel > summary::after{content:'▾';margin-left:auto;font-size:11px;color:var(--ink3);transition:transform .2s}
+  details.panel[open] > summary::after{transform:rotate(180deg)}
+  details.panel > .panel-body{padding:2px 12px 12px;border-top:1px dashed #EAF2ED}
+  details.sub{background:var(--mint-2);border-color:#E3F1E9}
+  details.sub > summary{font-size:12.5px;padding:8px 10px;background:transparent}
+  details.sub > .panel-body{padding:2px 10px 10px}
+
+  /* ---------- 表单 ---------- */
+  .lbl{display:block;font-size:11.5px;font-weight:700;color:var(--ink2);margin-bottom:5px;letter-spacing:.2px}
+  .inp,textarea.inp,select.inp{
+    width:100%;border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 10px;
+    font-size:13px;color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s;font-family:inherit;
+  }
+  .inp:focus{border-color:var(--brand-soft);box-shadow:0 0 0 3px rgba(76,175,125,.14)}
+  textarea.inp{resize:vertical;line-height:1.65}
+  .inp::placeholder{color:#B4C2BA}
+  .field{margin-bottom:10px}
+
+  /* ---------- 按钮 ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    border-radius:10px;border:1px solid transparent;padding:8px 12px;font-size:12.5px;font-weight:700;
+    cursor:pointer;transition:all .16s;line-height:1.2;font-family:inherit;white-space:nowrap;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .btn-primary{background:var(--brand);color:#fff;box-shadow:0 4px 12px -6px rgba(46,125,79,.9)}
+  .btn-primary:hover:not(:disabled){background:var(--brand-dark)}
+  .btn-ghost{background:#fff;border-color:var(--line);color:var(--ink2)}
+  .btn-ghost:hover:not(:disabled){background:var(--mint);border-color:var(--brand-soft);color:var(--brand)}
+  .btn-soft{background:var(--mint);color:var(--brand);border-color:var(--line)}
+  .btn-soft:hover:not(:disabled){background:#DFF3E6}
+  .btn-danger{background:var(--red);color:#fff}
+  .btn-danger:hover:not(:disabled){background:#962d21}
+  .btn-wide{width:100%}
+  .btn-sm{padding:6px 9px;font-size:11.5px;border-radius:8px}
+
+  /* ---------- 卡片 ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow)}
+  .sec-title{font-size:15px;font-weight:800;margin:0 0 10px;display:flex;align-items:center;gap:7px}
+  .muted{color:var(--ink3)}
+  .small{font-size:11.5px}
+  .note{font-size:12px;border-radius:10px;padding:9px 11px;line-height:1.6}
+  .note-warn{background:#FFF8EC;border:1px solid #F3DFC0;color:#8A5A16}
+  .note-info{background:var(--mint);border:1px solid var(--line);color:#1F5133}
+  .note-bad{background:var(--red-soft);border:1px solid #F0C4BD;color:#8C2B1E}
+
+  /* ---------- 妙妙横幅 ---------- */
+  .banner{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    background:linear-gradient(135deg,#EAF7EE 0%,#F7FAF8 100%);
+    border:1px solid var(--line);border-radius:16px;padding:12px 20px;
+    box-shadow:0 4px 15px rgba(46,125,79,.10);transition:all .5s;
+  }
+  .banner-left{display:flex;align-items:center;gap:14px;min-width:0;flex:1 1 260px}
+  .avatar{
+    width:60px;height:60px;flex:0 0 60px;border-radius:50%;background:#FFF9C4;border:2px solid #fff;
+    box-shadow:0 4px 10px rgba(0,0,0,.10);cursor:pointer;overflow:hidden;padding:0;transition:transform .12s;
+    position:relative;display:block;
+  }
+  .avatar:active{transform:scale(.9)}
+  .avatar svg{display:block;width:100%;height:100%}
+  .speech{
+    background:#fff;padding:9px 18px;border-radius:20px;font-size:14.5px;font-weight:800;line-height:1.45;
+    box-shadow:0 2px 8px rgba(0,0,0,.06);transition:color .3s;max-width:100%;
+  }
+  .banner-right{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:flex-end}
+  .quest-box{background:#FFF3E0;border:1px dashed #FF9800;padding:4px 9px;border-radius:8px;font-size:11.5px;color:#E65100;font-weight:800;display:inline-block}
+  .mood-box{font-size:11px;color:var(--ink3);text-align:right;margin-top:4px}
+  .date-box{text-align:right;color:var(--ink2);font-size:12px;line-height:1.35}
+  .holiday-tag{background:#FF4081;color:#fff;padding:1px 7px;border-radius:8px;font-size:10.5px;display:inline-block;margin-top:3px;font-weight:700}
+  .today-box{text-align:center}
+  .today-lbl{font-size:11px;color:var(--ink3)}
+  .num{display:inline-block;font-size:27px;font-weight:900;line-height:1.05}
+  .bottles{display:flex;gap:2px;align-items:center}
+  .bottle{font-size:21px;display:inline-block;margin-right:3px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));transition:opacity .3s}
+  .bottle.off{opacity:.15;filter:grayscale(100%)}
+  .bottle.half{opacity:.6;filter:none}
+  .bottle.pop{animation:bottlePop .5s ease-out}
+  .num.pop{animation:numPop .55s ease-out}
+
+  @keyframes bottlePop{0%{transform:scale(1) translateY(0)}50%{transform:scale(1.45) translateY(-9px)}100%{transform:scale(1) translateY(0)}}
+  @keyframes numPop{0%{transform:scale(1)}50%{transform:scale(1.32)}100%{transform:scale(1)}}
+  @keyframes swing{0%{transform:rotate(-5deg)}100%{transform:rotate(5deg)}}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+  @keyframes blink{0%,95%,100%{transform:scaleY(1)}98%{transform:scaleY(.12)}}
+  .miao-pigtail{animation:swing 2s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+  .miao-face{animation:breathe 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center;transition:fill .5s}
+  .miao-eyes{animation:blink 4s infinite;transform-box:fill-box;transform-origin:center}
+  .heart{position:fixed;color:#E53935;font-size:17px;pointer-events:none;z-index:90;animation:floatUp 1.5s ease-out forwards}
+  @keyframes floatUp{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-160%) scale(1.6)}}
+
+  /* ---------- KPI ---------- */
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  @media (max-width:860px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi::after{content:'';position:absolute;right:-18px;top:-18px;width:56px;height:56px;border-radius:50%;background:var(--mint);opacity:.7}
+  .kpi-lbl{font-size:11.5px;color:var(--ink2);font-weight:700;position:relative;z-index:1}
+  .kpi-val{font-size:26px;font-weight:900;color:var(--brand);line-height:1.25;position:relative;z-index:1}
+  .kpi-val.dim{color:#B7C4BC}
+
+  /* ---------- 上传 ---------- */
+  .dropzone{
+    margin-top:12px;border:2px dashed var(--line);border-radius:12px;background:var(--mint-2);
+    padding:18px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;transition:all .18s;
+  }
+  .dropzone:hover,.dropzone.drag{border-color:var(--brand-soft);background:#E7F6EC;color:var(--brand)}
+  .filemeta{margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}
+
+  /* ---------- 工作区两列 ---------- */
+  .work-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;align-items:start}
+  @media (max-width:1180px){.work-grid{grid-template-columns:minmax(0,1fr)}}
+
+  /* ---------- 表格 ---------- */
+  .table-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  .table-wrap{max-height:430px;overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+  table.mail{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px}
+  table.mail thead th{
+    position:sticky;top:0;z-index:2;background:#F4FAF6;color:var(--ink2);font-weight:800;font-size:11.5px;
+    text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;
+  }
+  table.mail tbody td{padding:8px 12px;border-bottom:1px solid #F1F6F3;vertical-align:middle}
+  table.mail tbody tr:hover td{background:#FBFEFC}
+  table.mail tbody tr:last-child td{border-bottom:none}
+  .ellip{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap}
+  .pill-ok{background:var(--mint);color:var(--brand)}
+  .pill-bad{background:var(--red-soft);color:var(--red)}
+  .pill-idle{background:#F2F4F3;color:#6C7C74}
+  .pager{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:10px;font-size:11.5px;color:var(--ink3)}
+  .empty{padding:34px 12px;text-align:center;color:var(--ink3);font-size:12.5px}
+
+  /* ---------- 发信控制 ---------- */
+  .progress{height:9px;border-radius:99px;background:#EDF3EF;overflow:hidden;margin:10px 0 6px}
+  .progress-bar{height:100%;background:linear-gradient(90deg,#4CAF7D,#2E7D4F);border-radius:99px;transition:width .35s;width:0}
+  .cur-card{background:var(--mint-2);border:1px solid var(--line);border-radius:11px;padding:10px 11px;margin:10px 0;line-height:1.7}
+  .cur-company{font-weight:800;font-size:13px}
+  .cur-mail{font-size:12px;color:var(--brand);word-break:break-all}
+  .cur-contact{font-size:11.5px;color:var(--ink3)}
+  .cd{font-size:11.5px;background:#FFF8EC;border:1px solid #F3DFC0;color:#8A5A16;border-radius:9px;padding:6px 9px;text-align:center;font-weight:700}
+  .cd b{font-size:14px;color:#C0392B}
+  .mail-prev{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:10px 0;background:#fff}
+  .pv-subj{background:#F7FAF8;padding:7px 10px;font-size:12px;font-weight:800;border-bottom:1px solid var(--line);color:var(--ink)}
+  .pv-body{margin:0;padding:10px;font-size:11.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;max-height:190px;overflow:auto;color:var(--ink2);font-family:inherit}
+  .btn-row{display:flex;flex-wrap:wrap;gap:7px}
+  .btn-row .btn{flex:1 1 46%}
+
+  /* ---------- 工具格 ---------- */
+  .tool-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .tool-btn{
+    flex:1 1 30%;text-align:center;padding:6px 3px;background:var(--mint-2);border:1px solid var(--line);
+    border-radius:7px;color:#3A4A42;font-size:11.5px;text-decoration:none;transition:all .16s;white-space:nowrap;font-weight:600;
+  }
+  .tool-btn:hover{background:var(--mint);border-color:var(--brand-soft);color:var(--brand)}
+  .group-title{font-size:12px;font-weight:800;margin:10px 0 6px;color:var(--ink)}
+
+  /* ---------- 代码/结果块 ---------- */
+  .codebox{
+    background:#1F3D2B;color:#D8F3E2;border-radius:9px;padding:9px 11px;font-size:11.5px;line-height:1.6;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-all;margin:6px 0;
+  }
+  .resultbox{background:var(--mint);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:12px;line-height:1.7;color:#1F5133;margin-top:8px;white-space:pre-wrap;word-break:break-word}
+
+  /* ---------- 弹窗 ---------- */
+  .modal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(24,38,31,.45);backdrop-filter:blur(3px);animation:fadeIn .18s}
+  .modal-card{background:#fff;border-radius:18px;width:100%;max-width:520px;max-height:88vh;overflow:auto;box-shadow:0 24px 60px -20px rgba(0,0,0,.4);animation:popIn .22s cubic-bezier(.2,.8,.3,1)}
+  .modal-head{display:flex;align-items:center;gap:9px;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .modal-head h3{margin:0;font-size:15px;font-weight:800;flex:1}
+  .modal-body{padding:16px 18px}
+  .modal-foot{padding:0 18px 18px;display:flex;gap:8px;justify-content:flex-end}
+  .x-btn{border:none;background:#F2F5F3;width:28px;height:28px;border-radius:50%;cursor:pointer;color:var(--ink2);font-size:15px;line-height:1;display:grid;place-items:center}
+  .x-btn:hover{background:var(--mint);color:var(--brand)}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+
+  /* ---------- Toast ---------- */
+  #toastRoot{position:fixed;right:18px;bottom:18px;z-index:120;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+  .toast{
+    background:#22302A;color:#fff;border-radius:12px;padding:10px 14px;font-size:12.5px;font-weight:700;
+    box-shadow:0 12px 30px -10px rgba(0,0,0,.5);display:flex;gap:8px;align-items:center;max-width:340px;
+    animation:toastIn .25s cubic-bezier(.2,.8,.3,1);
+  }
+  .toast.out{animation:toastOut .3s forwards}
+  @keyframes toastIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+  @keyframes toastOut{to{opacity:0;transform:translateX(24px)}}
+
+  /* ---------- 顶部条 ---------- */
+  .topbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .badge{font-size:11px;font-weight:800;padding:4px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+  .badge-soft{background:var(--mint);color:var(--brand);border:1px solid var(--line)}
+  .badge-gray{background:#F2F4F3;color:#7C8B83;border:1px solid #E6EBE8}
+  .dot{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+  .menu-btn{display:none;border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 11px;font-size:15px;cursor:pointer;color:var(--ink)}
+  @media (max-width:1023px){.menu-btn{display:inline-flex}}
+
+  .divider{height:1px;background:var(--line);margin:14px 0}
+  .foot{text-align:center;font-size:11px;color:var(--ink3);line-height:1.9;padding:26px 0 8px}
+  a{color:var(--brand)}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ==================== 侧边栏 ==================== -->
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="brand-logo">🍼</div>
+      <div>
+        <div class="brand-title">给妙妙赚NeiNei</div>
+        <div class="brand-sub">爸爸的奶粉钱作战系统 · v2.0 网页版</div>
+      </div>
+    </div>
+
+    <!-- API Key 状态卡 -->
+    <div class="card" style="padding:12px;margin-bottom:12px;background:linear-gradient(135deg,#F2FAF5,#fff)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+        <span style="font-size:15px">🔑</span>
+        <div style="flex:1">
+          <div style="font-size:12.5px;font-weight:800">API Key 设置</div>
+          <div style="font-size:10.5px;color:var(--ink3);margin-top:2px" id="keyStateText">未配置 · 只存本机浏览器</div>
+        </div>
+        <span id="keyDot" class="dot" style="color:#C7D2CB"></span>
+      </div>
+      <button class="btn btn-soft btn-wide btn-sm" data-act="open-api">配置密钥 / 直发接口</button>
+    </div>
+
+    <!-- 外贸百宝箱 -->
+    <details class="panel">
+      <summary>🧰 外贸百宝箱</summary>
+      <div class="panel-body">
+        <div id="toolBox"></div>
+        <details class="sub">
+          <summary>💡 IP 检测指南</summary>
+          <div class="panel-body" style="font-size:11.5px;line-height:1.85;color:var(--ink2)">
+            <div>🌐 <b>IPinfo</b> = 查当前 IP 归属地，确认是否伪装到目标国家。</div>
+            <div>🚨 <b>Scamalytics</b> = 查欺诈值（0-100）。<b style="color:var(--red)">数值高于 50 千万别发信！</b></div>
+            <div>🔬 <b>Whoer</b> = 查环境伪装度。时区和 IP 必须一致，否则易触发风控。</div>
+          </div>
+        </details>
+      </div>
+    </details>
+
+    <!-- 客户开发 -->
+    <details class="panel">
+      <summary>🔍 客户开发</summary>
+      <div class="panel-body">
+
+        <!-- AI 智能词库 -->
+        <details class="sub">
+          <summary>🤖 AI 智能词库</summary>
+          <div class="panel-body">
+            <p class="small muted" style="margin:0 0 8px">输入中文产品，让 DeepSeek 帮你生成地道英文热搜词。</p>
+            <input id="kwInput" class="inp" placeholder="例如：慢回弹捏捏乐" style="margin-bottom:8px">
+            <button class="btn btn-primary btn-wide btn-sm" data-act="gen-keywords">✨ 让 AI 帮我找热词</button>
+            <div id="kwResult" class="hidden">
+              <div class="resultbox" id="kwOut"></div>
+              <button class="btn btn-ghost btn-wide btn-sm" style="margin-top:7px" data-act="copy-keywords">📋 复制这 5 个词</button>
+            </div>
+          </div>
+        </details>
+
+        <!-- 谷歌 Dorks -->
+        <details class="sub">
+          <summary>🌐 谷歌 Dorks</summary>
+          <div class="panel-body">
+            <div class="field">
+              <label class="lbl">目标店铺类型</label>
+              <select id="dorkShop" class="inp">
+                <option>gift shop</option><option>boutique</option><option>toy store</option><option>anime store</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="lbl">你的产品词 (英文)</label>
+              <input id="dorkProduct" class="inp" placeholder="例如: squishy toys">
+            </div>
+            <div class="field">
+              <label class="lbl">目标市场</label>
+              <select id="dorkMarket" class="inp"><option>全球</option><option>美国</option><option>墨西哥</option></select>
+            </div>
+            <button class="btn btn-primary btn-wide btn-sm" data-act="gen-dorks">生成 Dorks 指令</button>
+            <div id="dorkResult" class="hidden">
+              <div class="codebox" id="dorkOut"></div>
+              <a id="dorkLink" class="btn btn-soft btn-wide btn-sm" style="margin-top:7px;text-decoration:none" target="_blank" rel="noopener" href="#">🚀 直接去谷歌搜</a>
+            </div>
+          </div>
+        </details>
+
+        <!-- 地图找店 -->
+        <details class="sub">
+          <summary>📍 地图找店</summary>
+          <div class="panel-body">
+            <div class="field">
+              <label class="lbl">目标国家</label>
+              <select id="mapCountry" class="inp"><option>美国</option><option>墨西哥</option></select>
+            </div>
+            <div class="field">
+              <label class="lbl">目标城市 (英文)</label>
+              <input id="mapCity" class="inp" placeholder="例如: Los Angeles / Mexico City">
+            </div>
+            <div class="field">
+              <label class="lbl">店铺类型</label>
+              <select id="mapShop" class="inp"><option>toy store</option><option>kawaii shop</option><option>anime store</option><option>gift shop</option></select>
+            </div>
+            <button class="btn btn-primary btn-wide btn-sm" data-act="gen-map">生成地图搜索词</button>
+            <div id="mapResult" class="hidden">
+              <div class="codebox" id="mapOut"></div>
+              <a id="mapLink" class="btn btn-soft btn-wide btn-sm" style="margin-top:7px;text-decoration:none" target="_blank" rel="noopener" href="#">🚀 去谷歌地图查看</a>
+            </div>
+          </div>
+        </details>
+
+        <!-- 展会偷家 -->
+        <details class="sub">
+          <summary>🏛️ 展会偷家</summary>
+          <div class="panel-body">
+            <p class="small muted" style="margin:0 0 8px">💡 去这些官网下载往届的买家/参展商名单，清洗后直接导入发信！</p>
+            <div id="fairBox" style="display:flex;flex-direction:column;gap:6px"></div>
+          </div>
+        </details>
+
+        <!-- 客户背调 -->
+        <details class="sub">
+          <summary>🕵️ 客户背调</summary>
+          <div class="panel-body">
+            <div id="checkBox"></div>
+            <details class="sub" style="background:#fff">
+              <summary>💡 背调工具速查</summary>
+              <div class="panel-body" style="font-size:11.5px;line-height:1.9;color:var(--ink2)">
+                <div>🏬 <b>实体核验</b> = 街景看一眼，是仓库还是皮包公司立刻现原形</div>
+                <div>🕵️ <b>Whois</b> = 查官网建站时间，刚建站的大概率是骗子</div>
+                <div>📦 <b>海关</b> = 查真实进货记录，判断是不是真金主</div>
+                <div>🏢 <b>企查</b> = 查营业执照，看有没有破产注销</div>
+                <div>🎯 <b>Hunter / 邮箱反查</b> = 找关键人邮箱，发信不退信</div>
+              </div>
+            </details>
+          </div>
+        </details>
+      </div>
+    </details>
+
+    <!-- 发件身份 -->
+    <details class="panel">
+      <summary>⚙️ 发件身份</summary>
+      <div class="panel-body">
+        <div class="field">
+          <label class="lbl">选择发件邮箱（赚钱小号）</label>
+          <select id="accSelect" class="inp"></select>
+        </div>
+        <div class="field">
+          <label class="lbl">发件邮箱</label>
+          <input id="accEmail" class="inp" placeholder="you@company.com" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="lbl">发件人显示名</label>
+          <input id="accName" class="inp" placeholder="Sales" autocomplete="off">
+        </div>
+        <div style="display:flex;gap:7px">
+          <button class="btn btn-primary btn-sm" style="flex:1" data-act="save-acc">💾 保存账号</button>
+          <button class="btn btn-ghost btn-sm" style="flex:1" data-act="del-acc">🗑️ 删除</button>
+        </div>
+        <div class="note note-info" style="margin-top:10px;font-size:11px">
+          浏览器出于安全限制<b>无法直连 SMTP 服务器</b>，所以这里不需要填授权码、服务器和端口。<br>
+          这个邮箱只用来：区分统计数据、决定「战绩本」筛选、生成邮件签名。
+        </div>
+      </div>
+    </details>
+
+    <!-- 邮件话术 -->
+    <details class="panel">
+      <summary>✉️ 邮件话术配置</summary>
+      <div class="panel-body">
+        <div class="field">
+          <label class="lbl">邮件主题</label>
+          <input id="tplSubject" class="inp">
+        </div>
+        <div class="field">
+          <label class="lbl">邮件正文 (纯文本)</label>
+          <textarea id="tplBody" class="inp" rows="9"></textarea>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
+            <button class="btn btn-ghost btn-sm" data-act="ins-var" data-var="{greeting}" style="flex:0 0 auto">{greeting}</button>
+            <button class="btn btn-ghost btn-sm" data-act="ins-var" data-var="{company}" style="flex:0 0 auto">{company}</button>
+            <button class="btn btn-ghost btn-sm" data-act="tpl-reset" style="flex:0 0 auto;margin-left:auto">↺ 恢复默认</button>
+          </div>
+        </div>
+
+        <details class="sub">
+          <summary>🤖 不满意？让 AI 帮你写</summary>
+          <div class="panel-body">
+            <textarea id="aiPrompt" class="inp" rows="3" style="margin-bottom:8px">客户未回复，委婉提醒他看最新目录参考市场行情，没有任何坏处，强调我们是源头工厂，支持OEM定制。</textarea>
+            <button class="btn btn-primary btn-wide btn-sm" data-act="gen-mail">✨ 生成高回复草稿</button>
+            <div id="aiDraftWrap" class="hidden" style="margin-top:10px">
+              <p class="small muted" style="margin:0 0 5px">👇 草稿预览：满意的话点击下方按钮替换。</p>
+              <div class="resultbox" id="aiDraftText" style="max-height:200px;overflow:auto"></div>
+              <button class="btn btn-primary btn-wide btn-sm" style="margin-top:7px" data-act="adopt-draft">采纳并替换上方正文</button>
+              <button class="btn btn-ghost btn-wide btn-sm" style="margin-top:5px" data-act="drop-draft">🗑️ 丢弃草稿</button>
+            </div>
+          </div>
+        </details>
+
+        <details class="sub">
+          <summary>👀 变量预览</summary>
+          <div class="panel-body">
+            <div class="resultbox" id="tplPreview" style="font-size:11.5px"></div>
+            <p class="small muted" style="margin:6px 0 0">预览使用样例：<b>Global Toy Trading Co.</b> / <b>John Smith</b></p>
+          </div>
+        </details>
+      </div>
+    </details>
+
+    <!-- 风控 -->
+    <details class="panel">
+      <summary>⚡ 风控策略限制</summary>
+      <div class="panel-body">
+        <div class="field">
+          <label class="lbl">单日发送上限 (封)</label>
+          <input id="dailyLimit" type="number" min="1" step="1" class="inp">
+        </div>
+        <div class="field">
+          <label class="lbl">同域名单日上限 (封)</label>
+          <input id="domainLimit" type="number" min="1" step="1" class="inp">
+        </div>
+        <div class="field">
+          <label class="lbl">随机延迟 (秒)</label>
+          <div style="display:flex;align-items:center;gap:7px">
+            <input id="delayMin" type="number" min="0" step="1" class="inp">
+            <span class="muted">~</span>
+            <input id="delayMax" type="number" min="0" step="1" class="inp">
+          </div>
+        </div>
+        <p class="small muted" style="margin:0">建议保持 60~120 秒，模拟真人节奏，别把邮箱打废。</p>
+      </div>
+    </details>
+
+    <!-- 数据与隐私 -->
+    <details class="panel">
+      <summary>💾 数据与隐私</summary>
+      <div class="panel-body">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn btn-ghost btn-sm btn-wide" data-act="export-xlsx">⬇️ 导出进度表 (.xlsx)</button>
+          <button class="btn btn-ghost btn-sm btn-wide" data-act="export-logs">⬇️ 导出战绩本 (.csv)</button>
+          <div class="divider" style="margin:6px 0"></div>
+          <button class="btn btn-ghost btn-sm btn-wide" data-act="export-backup">🧳 备份全部数据 (.json)</button>
+          <button class="btn btn-ghost btn-sm btn-wide" data-act="import-backup">📥 从备份恢复</button>
+          <button class="btn btn-sm btn-wide" style="color:var(--red);border:1px solid var(--red-soft);background:#fff" data-act="wipe">🧹 清空全部数据</button>
+        </div>
+        <p class="small muted" style="margin:9px 0 0;line-height:1.7">所有数据只存在这台设备的浏览器 localStorage，不上传任何服务器。换设备请用「备份」迁移。</p>
+      </div>
+    </details>
+
+    <div style="text-align:center;padding:14px 6px 0;font-size:10.5px;color:var(--ink3);line-height:1.8">
+      不积跬步，无以至千里 🚶<br>
+      <span style="opacity:.75">今日也陪妙妙多赚一勺奶粉钱</span>
+    </div>
+  </aside>
+
+  <div id="scrim"></div>
+
+  <!-- ==================== 主区 ==================== -->
+  <main>
+    <div class="topbar">
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="topbar-right">
+        <span class="badge badge-gray" id="engineBadge"><span class="dot"></span> 发送引擎：邮箱客户端</span>
+        <span class="badge badge-soft">🔒 数据仅存本机</span>
+        <button class="btn btn-ghost btn-sm" data-act="open-api">🔑 API</button>
+      </div>
+    </div>
+
+    <!-- 妙妙横幅 -->
+    <section class="banner" id="banner">
+      <div class="banner-left">
+        <button class="avatar" id="miaoAvatar" data-act="poke" aria-label="戳戳妙妙的脸蛋">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <g class="miao-pigtail">
+              <circle cx="15" cy="55" r="12" fill="#3E2723"/>
+              <circle cx="85" cy="55" r="12" fill="#3E2723"/>
+            </g>
+            <circle id="miaoFace" class="miao-face" cx="50" cy="55" r="40" fill="#FFE0B2"/>
+            <path d="M 10 50 Q 15 10 50 10 Q 85 10 90 50 Q 80 30 50 30 Q 20 30 10 50 Z" fill="#3E2723"/>
+            <circle cx="25" cy="65" r="7" fill="#FF8A80" opacity="0.6"/>
+            <circle cx="75" cy="65" r="7" fill="#FF8A80" opacity="0.6"/>
+            <g class="miao-eyes">
+              <circle cx="35" cy="55" r="6" fill="#3E2723"/>
+              <circle cx="65" cy="55" r="6" fill="#3E2723"/>
+              <circle cx="37" cy="53" r="2.5" fill="#FFF"/>
+              <circle cx="67" cy="53" r="2.5" fill="#FFF"/>
+            </g>
+            <path d="M 45 72 Q 50 80 55 72" fill="none" stroke="#D32F2F" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 15 95 Q 50 75 85 95" fill="none" stroke="#FFF" stroke-width="4" stroke-linecap="round"/>
+            <path d="M 20 100 L 20 95 Q 50 85 80 95 L 80 100 Z" fill="#E53935"/>
+          </svg>
+        </button>
+        <div class="speech" id="speech">爸爸，戳戳妙妙的脸蛋呀~</div>
+      </div>
+      <div class="banner-right">
+        <div style="text-align:right">
+          <div class="quest-box">🎯 任务: <span id="questText">赚 1 个气球 (发3封)</span></div>
+          <div class="mood-box">心情: <span id="moodEmoji">😊</span> <span id="moodVal">50</span>/100</div>
+        </div>
+        <div class="date-box">
+          <div id="dateText">—</div>
+          <div class="holiday-tag" id="holidayTag">—</div>
+        </div>
+        <div class="today-box">
+          <div class="today-lbl">今日已发</div>
+          <div class="num" id="todayNum" style="color:#2E7D4F">0</div>
+        </div>
+        <div class="bottles" id="bottles"></div>
+      </div>
+    </section>
+
+    <!-- KPI -->
+    <div class="kpi-grid" style="margin-top:14px">
+      <div class="kpi"><div class="kpi-lbl">🍼 今日产奶量</div><div class="kpi-val" id="kpiToday">0</div></div>
+      <div class="kpi"><div class="kpi-lbl">🏆 本月奶粉库</div><div class="kpi-val" id="kpiMonth">0</div></div>
+      <div class="kpi"><div class="kpi-lbl">🎯 抓来的“金主”</div><div class="kpi-val dim" id="kpiTotal">-</div></div>
+      <div class="kpi"><div class="kpi-lbl">💌 嗷嗷待哺</div><div class="kpi-val dim" id="kpiPending">-</div></div>
+    </div>
+
+    <!-- 上传 -->
+    <section class="card" style="margin-top:14px">
+      <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div style="flex:1 1 260px;min-width:0">
+          <h3 class="sec-title" style="margin-bottom:4px">👶🏻 爸爸，快把今天的“金主”名单传上来！</h3>
+          <p class="muted small" id="uploadHint" style="margin:0">💡 小提示：把文件拖进来，妙妙这就去榨干他们的钱包买小裙裙！</p>
+        </div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" data-act="export-xlsx">⬇️ 导出进度表</button>
+          <button class="btn btn-primary btn-sm" data-act="pick-file">📄 选择表格</button>
+        </div>
+      </div>
+      <div class="dropzone" id="dropzone">拖拽 .xlsx / .xls / .csv 到这里，或点击选择文件</div>
+      <div class="filemeta hidden" id="fileMeta"></div>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" class="hidden">
+    </section>
+
+    <!-- 表格 + 发信控制 -->
+    <div class="work-grid" style="margin-top:14px">
+      <section class="card">
+        <h3 class="sec-title">🎯 金主们的“待宰”进度表</h3>
+        <div class="table-tools">
+          <input id="searchInput" class="inp" placeholder="🔎 搜公司 / 联系人 / 邮箱" style="flex:1 1 180px;max-width:260px">
+          <select id="statusFilter" class="inp" style="flex:0 0 auto;width:120px">
+            <option value="all">全部状态</option>
+            <option value="pending">待发送</option>
+            <option value="failed">发送失败</option>
+            <option value="sent">已发送</option>
+          </select>
+          <span class="muted small" id="tableCount" style="margin-left:auto"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="mail">
+            <thead>
+              <tr>
+                <th style="width:34px">#</th>
+                <th>🏢 金主公司</th>
+                <th>🧑‍💼 联络人</th>
+                <th>📧 邮箱</th>
+                <th>📬 投递状态</th>
+                <th>⏰ 投递时间</th>
+              </tr>
+            </thead>
+            <tbody id="mailBody"></tbody>
+          </table>
+          <div class="empty hidden" id="tableEmpty">👈 爸爸，快把表格传上来吧！</div>
+        </div>
+        <div class="pager" id="pager"></div>
+      </section>
+
+      <section class="card" id="sendPanel"></section>
+    </div>
+
+    <!-- 战绩本 -->
+    <section class="card" style="margin-top:14px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+        <h3 class="sec-title" style="margin:0;flex:1 1 auto">📜 爸爸的“打猎”战绩本</h3>
+        <select id="histFilter" class="inp" style="width:auto;min-width:150px"></select>
+        <button class="btn btn-ghost btn-sm" data-act="export-logs">⬇️ 导出</button>
+        <button class="btn btn-ghost btn-sm" data-act="clear-logs">🧽 清空</button>
+      </div>
+      <div class="table-wrap" style="max-height:320px">
+        <table class="mail">
+          <thead>
+            <tr>
+              <th>⏰ 时间</th>
+              <th id="thFrom">📧 小号</th>
+              <th>🏢 金主</th>
+              <th>📬 收件人</th>
+              <th>📊 战况</th>
+              <th>📝 备注</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+        <div class="empty hidden" id="histEmpty">还没有打猎记录，快去吧！</div>
+      </div>
+      <div class="muted small" id="histMeta" style="margin-top:8px"></div>
+    </section>
+
+    <div class="foot">
+      🍼 给妙妙赚NeiNei · 纯前端版｜所有数据保存在你自己的浏览器里，不会上传到任何服务器<br>
+      请遵守目标市场的反垃圾邮件法规（如 CAN-SPAM / GDPR），只联系有正当商业理由的对象 · 不积跬步，无以至千里
+    </div>
+  </main>
+</div>
+
+<!-- ==================== API Key 弹窗 ==================== -->
+<div class="modal hidden" id="apiModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <span style="font-size:18px">🔑</span>
+      <h3>API 密钥设置</h3>
+      <button class="x-btn" data-act="close-api">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="note note-info" style="margin-bottom:14px">
+        密钥只保存在你<b>本机浏览器</b>的 localStorage 里，不会写进源码、不会上传、不会被推上 GitHub。
+        换电脑或清缓存后需要重新填一次。
+      </div>
+
+      <div class="field">
+        <label class="lbl">DeepSeek API Key</label>
+        <div style="display:flex;gap:6px">
+          <input id="apiKeyInput" class="inp" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
+          <button class="btn btn-ghost btn-sm" data-act="toggle-pwd" style="flex:0 0 auto">👁</button>
+        </div>
+        <p class="small muted" style="margin:5px 0 0">去 platform.deepseek.com → API keys 创建，形如 sk-xxxxxxxx。只用于「AI 智能词库」和「AI 写邮件」。</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field">
+          <label class="lbl">接口地址</label>
+          <input id="apiBaseInput" class="inp" placeholder="https://api.deepseek.com">
+        </div>
+        <div class="field">
+          <label class="lbl">模型</label>
+          <input id="apiModelInput" class="inp" placeholder="deepseek-chat">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:7px;align-items:center">
+        <button class="btn btn-primary btn-sm" data-act="test-api">🔌 测试连接</button>
+        <button class="btn btn-ghost btn-sm" data-act="clear-key">🧹 清除密钥</button>
+        <span class="small" id="apiState" style="margin-left:auto"></span>
+      </div>
+
+      <div class="divider"></div>
+
+      <details class="sub" style="background:#FFFDF7;border-color:#F3E6CC">
+        <summary style="color:#8A5A16">⚡ 高级：直发接口（可选，实现自动连发）</summary>
+        <div class="panel-body">
+          <p class="small" style="margin:0 0 9px;line-height:1.7;color:var(--ink2)">
+            浏览器不能连 SMTP，但可以 POST 到<b>你自己的一个地址</b>。填了它，「发信控制」里就会多出「立即直发」和自动连发能力。<br>
+            你的接口会收到 JSON：<code style="font-size:10.5px;background:#F2F5F3;padding:1px 4px;border-radius:4px">{to, subject, body, from, fromName, company, contact}</code>，
+            返回 2xx 即视为成功。可以用 Cloudflare Worker、Vercel Function、Make/Zapier Webhook 转发到你的 SMTP。
+          </p>
+          <div class="field">
+            <label class="lbl">Webhook 地址</label>
+            <input id="hookUrl" class="inp" placeholder="https://your-worker.workers.dev/send" autocomplete="off">
+          </div>
+          <div class="field">
+            <label class="lbl">Bearer Token（可选）</label>
+            <input id="hookToken" class="inp" type="password" placeholder="留空则不发送 Authorization" autocomplete="off">
+          </div>
+          <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer">
+            <input type="checkbox" id="useHook" style="width:15px;height:15px;accent-color:#2E7D4F">
+            优先使用直发接口（每封自动 POST，失败自动转人工）
+          </label>
+        </div>
+      </details>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" data-act="close-api">取消</button>
+      <button class="btn btn-primary btn-sm" data-act="save-api">保存设置</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 首次使用引导 ==================== -->
+<div class="modal hidden" id="onboardModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <span style="font-size:18px">🍼</span>
+      <h3>欢迎来到「给妙妙赚NeiNei」网页版</h3>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0 0 14px;font-size:13px;line-height:1.8;color:var(--ink2)">
+        爸爸，这是一个<b>纯网页版</b>的奶粉钱作战台 —— 没有后端、没有数据库，打开就能用。
+      </p>
+      <div style="display:flex;flex-direction:column;gap:11px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="flex:0 0 24px;height:24px;border-radius:8px;background:var(--mint);color:var(--brand);display:grid;place-items:center;font-size:12px;font-weight:900">1</div>
+          <div style="font-size:12.5px;line-height:1.7"><b>配置发件邮箱</b><br><span class="muted">左侧「⚙️ 发件身份」，只填邮箱和显示名，用于统计和签名。</span></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="flex:0 0 24px;height:24px;border-radius:8px;background:var(--mint);color:var(--brand);display:grid;place-items:center;font-size:12px;font-weight:900">2</div>
+          <div style="font-size:12.5px;line-height:1.7"><b>传上今天的名单</b><br><span class="muted">支持 .xlsx / .xls / .csv，表头需要「公司名称 / 联系人名称 / 联系人邮箱」。</span></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="flex:0 0 24px;height:24px;border-radius:8px;background:var(--mint);color:var(--brand);display:grid;place-items:center;font-size:12px;font-weight:900">3</div>
+          <div style="font-size:12.5px;line-height:1.7"><b>逐封发出去</b><br><span class="muted">妙妙会把每封信准备好，你点「打开邮箱客户端」发送，回来点一下「已发送」即可。进度、战绩、奶瓶都会自动记账。</span></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="flex:0 0 24px;height:24px;border-radius:8px;background:#FFF3E0;color:#E65100;display:grid;place-items:center;font-size:12px;font-weight:900">4</div>
+          <div style="font-size:12.5px;line-height:1.7"><b>（可选）配 API Key</b><br><span class="muted">想要 AI 帮你写开发信，再填自己的 DeepSeek Key，只存本地。</span></div>
+        </div>
+      </div>
+      <div class="note note-warn" style="margin-top:14px;font-size:11.5px">
+        换设备 / 清浏览器缓存会丢数据，重要名单请用左侧「💾 数据与隐私 → 备份全部数据」导出。
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary btn-wide btn-sm" data-act="onboard-done" style="flex:1">开始赚奶粉钱 🍼</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 发送失败原因 ==================== -->
+<div class="modal hidden" id="failModal">
+  <div class="modal-card" style="max-width:420px">
+    <div class="modal-head">
+      <span style="font-size:17px">😭</span>
+      <h3>标记为发送失败</h3>
+      <button class="x-btn" data-act="close-fail">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="lbl">常见原因</label>
+        <select id="failPreset" class="inp">
+          <option value="">— 手动填写 —</option>
+          <option>邮箱地址不存在 / 退信</option>
+          <option>对方服务器拒收</option>
+          <option>邮箱已满</option>
+          <option>域名解析失败</option>
+          <option>对方要求先填表单</option>
+          <option>暂不联系，稍后再试</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="lbl">备注（可留空）</label>
+        <input id="failReason" class="inp" placeholder="例如：550 mailbox unavailable">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" data-act="close-fail">取消</button>
+      <button class="btn btn-danger btn-sm" data-act="confirm-fail">确认失败</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 通用确认 ==================== -->
+<div class="modal hidden" id="confirmModal">
+  <div class="modal-card" style="max-width:400px">
+    <div class="modal-head"><h3 id="cfTitle">确认</h3></div>
+    <div class="modal-body"><div id="cfMsg" style="font-size:12.5px;line-height:1.8;color:var(--ink2)"></div></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" id="cfCancel">取消</button>
+      <button class="btn btn-danger btn-sm" id="cfOk">确定</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastRoot"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =========================================================
+     0. 常量
+     ========================================================= */
+  const LS_KEY = 'miao_neinei::v1';
+
+  const SPEECH = {
+    success: ['🍼 Neinei！好喝！', '🎈 爸爸真棒，买气球！', '👗 赚到小裙裙啦~', '🧸 谢谢爸爸买玩具！', '✨ 爸爸亲亲！'],
+    sending: ['爸爸在打字嘛？', '这个叔叔怎么不理我们呀？', '爸爸快一点嘛，要出去玩~', '妙妙饿饿，要喝Neinei！', '爸爸辛苦啦，妙妙给你捶捶背~'],
+    fail: ['呜…气球飞走啦！', '爸爸别哭，妙妙不要玩具了~', '这个叔叔坏坏！', '没关系的爸爸，我们再试一次吧~'],
+    poke: ['爸爸别戳啦，要抱抱！', '咯咯咯，好痒呀~', '爸爸快干活，买糖糖！', '妙妙在看你哦~', '爸爸贴贴！'],
+    egg: ['爸爸，妙妙想吃冰淇淋~', '今天穿什么漂亮裙裙呀？', '妙妙以后要买好多好多玩具！', '爸爸，外面有小狗！汪汪！', '刚才有个外国叔叔偷偷看爸爸啦！']
+  };
+
+  const QUESTS = ['赚 1 个气球 (发3封)', '买新裙裙 (发8封)', '买小脑斧玩具 (发15封)'];
+
+  const DEFAULT_BODY =
+    '{greeting}\n\nWe noticed that {company} is a leading player in the toy industry.\n\n' +
+    'We are a manufacturer specializing in plush toys and figures. Would you be open to a quick chat about potential cooperation?\n\n' +
+    'Best regards,\nRowan';
+
+  const DEFAULT_SUBJECT = 'Regarding {company} - Toy Sourcing';
+
+  const AI_PROMPT_DEFAULT =
+    '客户未回复，委婉提醒他看最新目录参考市场行情，没有任何坏处，强调我们是源头工厂，支持OEM定制。';
+
+  const ALIAS = {
+    company: ['公司名称', '公司', '客户名称', '客户公司', 'company', 'companyname', 'company_name'],
+    contact: ['联系人名称', '联系人', '姓名', '收件人', 'contact', 'contactname', 'name'],
+    email: ['联系人邮箱', '邮箱', '邮件', '电子邮箱', 'email', 'mail', 'e-mail'],
+    status: ['发送状态', '状态', 'status'],
+    time: ['发送时间', '时间', 'time', 'sendtime']
+  };
+
+  const TOOL_GROUPS = [
+    ['💬 沟通与成单', [
+      ['💬 WhatsApp', 'https://web.whatsapp.com/'],
+      ['💼 领英', 'https://www.linkedin.com'],
+      ['📘 脸书', 'https://www.facebook.com']
+    ]],
+    ['🎨 流量与选品', [
+      ['📸 Ins', 'https://www.instagram.com'],
+      ['🎵 TikTok', 'https://www.tiktok.com'],
+      ['📺 YT Shorts', 'https://www.youtube.com/shorts'],
+      ['🍋 Lemon8', 'https://www.lemon8-app.com/'],
+      ['📌 Pinterest', 'https://www.pinterest.com'],
+      ['👽 Reddit', 'https://www.reddit.com'],
+      ['🛍️ Depop', 'https://www.depop.com/'],
+      ['🛒 美客多', 'https://www.mercadolibre.com/'],
+      ['🎨 Etsy', 'https://www.etsy.com/']
+    ]],
+    ['🚚 物流查件', [
+      ['📦 17TRACK', 'https://www.17track.net/zh-cn'],
+      ['🚢 海运', 'https://www.marinetraffic.com'],
+      ['💵 汇率', 'https://www.boc.cn/sourcedb/whpj/']
+    ]],
+    ['🩺 安全体检 (防封必查)', [
+      ['🌐 IPinfo', 'https://ipinfo.io/'],
+      ['🚨 Scamalytics', 'https://scamalytics.com/'],
+      ['🔬 Whoer', 'https://whoer.net/zh']
+    ]]
+  ];
+
+  const FAIRS = [
+    ['🇭🇰 香港礼品及赠品展 (首选)', 'https://www.hktdc.com/'],
+    ['🇺🇸 美国纽约玩具展 (风向标)', 'https://toyfairny.com/'],
+    ['🇯🇵 东京国际礼品展 (日系)', 'https://www.giftshow.co.jp/english/'],
+    ['🇩🇪 法兰克福消费品展 (欧洲)', 'https://ambiente.messefrankfurt.com/'],
+    ['🇬🇧 伦敦玩具展 (英国)', 'https://www.toyfair.co.uk/']
+  ];
+
+  const CHECKS = [
+    ['🏬 实体核验', 'https://www.google.com/maps'],
+    ['🕵️ Whois', 'https://who.is/'],
+    ['📦 海关', 'https://www.importyeti.com/'],
+    ['🏢 企查', 'https://opencorporates.com/'],
+    ['🎯 Hunter', 'https://hunter.io/'],
+    ['🔍 邮箱反查', 'https://snov.io/email-finder']
+  ];
+
+  /* =========================================================
+     1. 工具函数
+     ========================================================= */
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+  const pad2 = n => String(n).padStart(2, '0');
+  const ymd = (d) => {
+    d = d || new Date();
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  };
+  const nowStr = () => {
+    const d = new Date();
+    return ymd(d) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
+  };
+  const rand = arr => arr[Math.floor(Math.random() * arr.length)];
+  const randInt = (a, b) => {
+    a = Number(a) || 0; b = Number(b) || 0;
+    if (b < a) { const t = a; a = b; b = t; }
+    return Math.floor(Math.random() * (b - a + 1)) + a;
+  };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+  const isPlain = o => o && typeof o === 'object' && !Array.isArray(o);
+
+  function deepMerge(base, patch) {
+    const out = Array.isArray(base) ? base.slice() : Object.assign({}, base);
+    if (!isPlain(patch)) return out;
+    Object.keys(patch).forEach(k => {
+      if (isPlain(patch[k]) && isPlain(out[k])) out[k] = deepMerge(out[k], patch[k]);
+      else if (patch[k] !== undefined) out[k] = patch[k];
+    });
+    return out;
+  }
+
+  function download(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1200);
+  }
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed'; ta.style.top = '-9999px';
+        document.body.appendChild(ta); ta.select();
+        const ok = document.execCommand('copy');
+        ta.remove();
+        return ok;
+      } catch (e2) { return false; }
+    }
+  }
+
+  let toastTimer = [];
+  function toast(msg, icon) {
+    const root = $('#toastRoot');
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = '<span>' + (icon || '🍼') + '</span><span>' + esc(msg) + '</span>';
+    root.appendChild(el);
+    const t = setTimeout(() => {
+      el.classList.add('out');
+      setTimeout(() => el.remove(), 320);
+    }, 3200);
+    toastTimer.push(t);
+    if (toastTimer.length > 6) clearTimeout(toastTimer.shift());
+  }
+
+  /* =========================================================
+     2. 状态与持久化
+     ========================================================= */
+  function defaultState() {
+    return {
+      version: 1,
+      settings: {
+        apiKey: '', apiBase: 'https://api.deepseek.com', model: 'deepseek-chat',
+        hookUrl: '', hookToken: '', useHook: false, onboarded: false
+      },
+      accounts: {},
+      activeAccount: '',
+      template: { subject: DEFAULT_SUBJECT, body: DEFAULT_BODY },
+      risk: { dailyLimit: 50, domainLimit: 2, delayMin: 60, delayMax: 120 },
+      table: { name: '', importedAt: '', rows: [] },
+      logs: [],
+      miao: { mood: 50, speech: '爸爸，戳戳妙妙的脸蛋呀~', streak: 0, quest: QUESTS[0], questDate: '' }
+    };
+  }
+
+  let state = defaultState();
+  let saveTimer = null;
+  let dirty = false;
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return defaultState();
+      const parsed = JSON.parse(raw);
+      return deepMerge(defaultState(), parsed);
+    } catch (e) {
+      console.warn('读取本地数据失败，使用默认状态', e);
+      return defaultState();
+    }
+  }
+
+  function persistNow() {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      dirty = false;
+    } catch (e) {
+      // 名单太大时，丢掉原始附加列再试一次，尽量别让用户丢数据
+      try {
+        const slim = JSON.parse(JSON.stringify(state));
+        slim.table.rows.forEach(r => { delete r.extra; });
+        localStorage.setItem(LS_KEY, JSON.stringify(slim));
+        dirty = false;
+        toast('名单太大，已省略表格里的其它列（关键字段都在）', '⚠️');
+      } catch (e2) {
+        toast('本地存储写入失败（浏览器空间已满），请先导出备份', '⚠️');
+      }
+    }
+  }
+
+  function saveState(immediate) {
+    dirty = true;
+    clearTimeout(saveTimer);
+    if (immediate) { persistNow(); return; }
+    saveTimer = setTimeout(persistNow, 240);
+  }
+
+  function flushSave() {
+    if (dirty) { clearTimeout(saveTimer); persistNow(); }
+  }
+
+  const ui = {
+    sending: false,
+    batch: null,
+    countdown: 0,
+    ready: false,
+    timer: null,
+    flash: null,          // 'success' | 'fail' | null
+    newBottle: -1,
+    page: 1,
+    pageSize: 50,
+    q: '',
+    filter: 'all',
+    draft: '',
+    lastKeywords: '',
+    histFilter: '__all__',
+    modalPwd: false
+  };
+
+  /* =========================================================
+     3. 业务计算
+     ========================================================= */
+  function statsFor(account) {
+    const todayStr = ymd();
+    const monthStr = todayStr.slice(0, 7);
+    let t = 0, m = 0;
+    state.logs.forEach(l => {
+      if (l.from !== account || l.status !== '已发送') return;
+      const d = String(l.time || '').slice(0, 10);
+      if (d === todayStr) t++;
+      if (d.slice(0, 7) === monthStr) m++;
+    });
+    return { today: t, month: m };
+  }
+
+  function domainOf(email) {
+    const s = String(email || '');
+    return s.indexOf('@') >= 0 ? s.split('@').pop().toLowerCase() : '';
+  }
+
+  function domainToday(domain, account) {
+    if (!domain) return 0;
+    const todayStr = ymd();
+    let n = 0;
+    state.logs.forEach(l => {
+      if (l.status !== '已发送' || l.from !== account) return;
+      if (String(l.time || '').slice(0, 10) !== todayStr) return;
+      if (String(l.email || '').toLowerCase().indexOf(domain) >= 0) n++;
+    });
+    return n;
+  }
+
+  function historicallySent(email) {
+    const e = String(email || '').trim().toLowerCase();
+    if (!e) return false;
+    return state.logs.some(l => l.status === '已发送' && String(l.email || '').trim().toLowerCase() === e);
+  }
+
+  function cleanGreeting(name) {
+    if (typeof name !== 'string' || !name.trim()) return 'Hi there,';
+    const n = name.trim();
+    if (n.indexOf('@') >= 0) return 'Hi there,';
+    if (/\.(com|org|net|co|uk|ru|ca|fr)$/i.test(n)) return 'Hi there,';
+    if (['sales', 'info', 'contact', 'support', 'service', 'admin', 'hello'].indexOf(n.toLowerCase()) >= 0) return 'Hi there,';
+    const first = n.split(/\s+/)[0] || '';
+    if (!first) return 'Hi there,';
+    return 'Hi ' + first.charAt(0).toUpperCase() + first.slice(1).toLowerCase() + ',';
+  }
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function fillTemplate(tpl, row) {
+    return String(tpl || '')
+      .replace(/\{greeting\}/g, cleanGreeting(row.contact))
+      .replace(/\{company\}/g, row.company || 'your company')
+      .replace(/\{contact\}/g, row.contact || 'there')
+      .replace(/\{email\}/g, row.email || '');
+  }
+
+  function addLog(row, status, reason) {
+    state.logs.push({
+      time: nowStr(),
+      from: state.activeAccount || '(未设置)',
+      company: row.company || '',
+      email: row.email || '',
+      status: status,
+      reason: reason || '',
+      batch: ui.batch && ui.batch.batchNo ? ui.batch.batchNo : 'B1'
+    });
+    if (state.logs.length > 20000) state.logs = state.logs.slice(-20000);
+  }
+
+  function countBy(fn) {
+    return state.table.rows.filter(fn).length;
+  }
+
+  function ensureQuest() {
+    const today = ymd();
+    if (state.miao.questDate !== today || !state.miao.quest) {
+      state.miao.quest = rand(QUESTS);
+      state.miao.questDate = today;
+      saveState();
+    }
+    return state.miao.quest;
+  }
+
+  function autoMode() {
+    return !!(state.settings.useHook && state.settings.hookUrl);
+  }
+
+  /* =========================================================
+     4. 妙妙横幅
+     ========================================================= */
+  function holidayText() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const list = [[10, 31, '🎃 万圣节'], [11, 27, '🦃 感恩节'], [12, 25, '🎄 圣诞节']];
+    const up = list.map(([m, d, name]) => {
+      let y = today.getFullYear();
+      let dt = new Date(y, m - 1, d);
+      if (dt < today) dt = new Date(y + 1, m - 1, d);
+      return { dt: dt, name: name };
+    }).sort((a, b) => a.dt - b.dt)[0];
+    const days = Math.round((up.dt - today) / 86400000);
+    return up.name + '还有 ' + days + ' 天';
+  }
+
+  function paintBottles(today) {
+    const total = Math.min(10, Math.floor(today / 8));
+    let h = '';
+    for (let i = 0; i < 10; i++) {
+      if (i < total) h += '<span class="bottle' + (ui.newBottle === i ? ' pop' : '') + '">🍼</span>';
+      else if (i === total && today % 8 > 0) h += '<span class="bottle half">🍼</span>';
+      else h += '<span class="bottle off">🍼</span>';
+    }
+    $('#bottles').innerHTML = h;
+    ui.newBottle = -1;
+  }
+
+  function paintBanner() {
+    const acct = state.activeAccount;
+    const st = statsFor(acct);
+    const mood = Math.max(0, Math.min(100, Number(state.miao.mood) || 0));
+
+    const d = new Date();
+    const wk = ['一', '二', '三', '四', '五', '六', '日'][(d.getDay() + 6) % 7];
+    $('#dateText').textContent = (d.getMonth() + 1) + '月' + d.getDate() + '日 星期' + wk;
+    $('#holidayTag').textContent = holidayText();
+    $('#questText').textContent = ensureQuest();
+    $('#moodVal').textContent = mood;
+
+    const canFull = ui.flash === 'success' && st.today > 0 && st.today % 8 === 0;
+
+    let speech, color, emoji, face;
+
+    if (ui.sending) {
+      speech = state.miao.speech || '爸爸在努力敲键盘，妙妙乖乖等~';
+      color = '#1976D2'; emoji = '💪'; face = '#E3F2FD';
+    } else if (ui.flash === 'fail') {
+      speech = '呜…气球破了，这个叔叔不理我们，爸爸别难过~';
+      color = '#C0392B'; emoji = '😭'; face = '#FFCDD2';
+    } else if (canFull) {
+      speech = '嗝~ 妙妙今天吃饱啦，谢谢爸爸！';
+      color = '#E91E63'; emoji = '🥳'; face = '#FFE0B2';
+    } else if (ui.flash === 'success') {
+      speech = '咕噜咕噜，好喝！爸爸继续加油！';
+      color = '#2E7D4F'; emoji = '🥰'; face = '#FFE0B2';
+    } else {
+      speech = state.miao.speech || '爸爸，戳戳妙妙的脸蛋呀~';
+      color = '#2E7D4F';
+      emoji = mood >= 50 ? '😊' : '🥺';
+      face = '#FFE0B2';
+    }
+
+    const sp = $('#speech');
+    sp.textContent = speech;
+    sp.style.color = color;
+    $('#moodEmoji').textContent = emoji;
+    $('#miaoFace').setAttribute('fill', face);
+    $('#todayNum').textContent = st.today;
+    $('#todayNum').style.color = color;
+
+    paintBottles(st.today);
+  }
+
+  function pokeMiao(e) {
+    const pokes = SPEECH.poke;
+    const sp = $('#speech');
+    sp.textContent = rand(pokes);
+    sp.style.color = '#E91E63';
+    const heart = document.createElement('div');
+    heart.className = 'heart';
+    heart.textContent = '❤️';
+    const x = (e && e.clientX) || (window.innerWidth / 2);
+    const y = (e && e.clientY) || 120;
+    heart.style.left = x + 'px';
+    heart.style.top = y + 'px';
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 1500);
+    state.miao.mood = Math.min(100, (Number(state.miao.mood) || 0) + 1);
+    $('#moodVal').textContent = state.miao.mood;
+    saveState();
+  }
+
+  function fireConfetti(kind) {
+    if (typeof confetti !== 'function') return;
+    if (kind === 'bottle') {
+      let bottle;
+      try { bottle = confetti.shapeFromText({ text: '🍼', scalar: 2 }); } catch (e) { bottle = null; }
+      const duration = 3000;
+      const end = Date.now() + duration;
+      const timer = setInterval(() => {
+        const left = end - Date.now();
+        if (left <= 0) return clearInterval(timer);
+        confetti({
+          particleCount: 30 * (left / duration), spread: 360, ticks: 60, gravity: 0.5,
+          shapes: bottle ? [bottle] : ['circle'], scalar: 2, colors: ['#FFCA3A'],
+          origin: { x: 0.5, y: 0.3 }
+        });
+      }, 250);
+      return;
+    }
+    const colors = ['#FF595E', '#FFCA3A', '#8AC926', '#1982C4', '#6A4C93'];
+    const duration = 2600;
+    const end = Date.now() + duration;
+    const r = (min, max) => Math.random() * (max - min) + min;
+    const timer = setInterval(() => {
+      const left = end - Date.now();
+      if (left <= 0) return clearInterval(timer);
+      confetti({ particleCount: 28 * (left / duration), angle: r(60, 120), spread: r(50, 70), origin: { x: 0 }, colors: colors });
+      confetti({ particleCount: 28 * (left / duration), angle: r(60, 120), spread: r(50, 70), origin: { x: 1 }, colors: colors });
+    }, 250);
+  }
+
+  /* =========================================================
+     5. KPI / 表格 / 战绩本
+     ========================================================= */
+  function paintKpis() {
+    const st = statsFor(state.activeAccount);
+    const rows = state.table.rows;
+    $('#kpiToday').textContent = st.today;
+    $('#kpiMonth').textContent = st.month;
+    const total = $('#kpiTotal'), pend = $('#kpiPending');
+    if (rows.length) {
+      total.textContent = rows.length; total.classList.remove('dim');
+      pend.textContent = rows.filter(r => r.status === '待发送').length; pend.classList.remove('dim');
+    } else {
+      total.textContent = '-'; total.classList.add('dim');
+      pend.textContent = '-'; pend.classList.add('dim');
+    }
+  }
+
+  function statusPill(s) {
+    const v = String(s || '待发送');
+    if (v.indexOf('已发送') >= 0) return '<span class="pill pill-ok">' + esc(v) + '</span>';
+    if (v === '发送失败') return '<span class="pill pill-bad">' + esc(v) + '</span>';
+    return '<span class="pill pill-idle">' + esc(v) + '</span>';
+  }
+
+  function paintTable() {
+    const body = $('#mailBody');
+    const empty = $('#tableEmpty');
+    const rows = state.table.rows;
+
+    if (!rows.length) {
+      body.innerHTML = '';
+      empty.classList.remove('hidden');
+      empty.textContent = '👈 爸爸，快把表格传上来吧！';
+      $('#tableCount').textContent = '';
+      $('#pager').innerHTML = '';
+      return;
+    }
+
+    const q = ui.q.trim().toLowerCase();
+    const f = ui.filter;
+    const list = [];
+    rows.forEach((r, i) => {
+      if (f === 'pending' && r.status !== '待发送') return;
+      if (f === 'failed' && r.status !== '发送失败') return;
+      if (f === 'sent' && String(r.status).indexOf('已发送') < 0) return;
+      if (q) {
+        const hay = [r.company, r.contact, r.email].map(v => String(v || '').toLowerCase()).join(' | ');
+        if (hay.indexOf(q) < 0) return;
+      }
+      list.push({ r: r, i: i });
+    });
+
+    const pages = Math.max(1, Math.ceil(list.length / ui.pageSize));
+    if (ui.page > pages) ui.page = pages;
+    const slice = list.slice((ui.page - 1) * ui.pageSize, ui.page * ui.pageSize);
+
+    if (!list.length) {
+      body.innerHTML = '';
+      empty.classList.remove('hidden');
+      empty.textContent = '没有符合条件的名单，换个关键词试试~';
+    } else {
+      empty.classList.add('hidden');
+      body.innerHTML = slice.map(({ r, i }) => (
+        '<tr>' +
+          '<td class="muted" style="font-size:11px">' + (i + 1) + '</td>' +
+          '<td><span class="ellip" title="' + esc(r.company) + '">' + (esc(r.company) || '<span class="muted">—</span>') + '</span></td>' +
+          '<td><span class="ellip" title="' + esc(r.contact) + '">' + (esc(r.contact) || '<span class="muted">—</span>') + '</span></td>' +
+          '<td><span class="ellip" title="' + esc(r.email) + '" style="color:#2E7D4F">' + esc(r.email) + '</span></td>' +
+          '<td>' + statusPill(r.status) + '</td>' +
+          '<td class="muted" style="font-size:11px;white-space:nowrap">' + (esc(r.time) || '—') + '</td>' +
+        '</tr>'
+      )).join('');
+    }
+
+    $('#tableCount').textContent = '共 ' + rows.length + ' 条 · 筛选出 ' + list.length + ' 条';
+    $('#pager').innerHTML = pages > 1
+      ? '<button class="btn btn-ghost btn-sm" data-act="prev-page"' + (ui.page <= 1 ? ' disabled' : '') + '>上一页</button>' +
+        '<span>第 ' + ui.page + ' / ' + pages + ' 页</span>' +
+        '<button class="btn btn-ghost btn-sm" data-act="next-page"' + (ui.page >= pages ? ' disabled' : '') + '>下一页</button>'
+      : '';
+  }
+
+  function paintHistory() {
+    const body = $('#historyBody');
+    const empty = $('#histEmpty');
+    const sel = $('#histFilter');
+
+    const accounts = [];
+    state.logs.forEach(l => { if (l.from && accounts.indexOf(l.from) < 0) accounts.push(l.from); });
+    if (state.activeAccount && accounts.indexOf(state.activeAccount) < 0) accounts.push(state.activeAccount);
+
+    const opts = ['<option value="__all__">👀 全部邮箱</option>']
+      .concat(accounts.map(a => '<option value="' + esc(a) + '">' + esc(a) + '</option>'));
+    sel.innerHTML = opts.join('');
+    if (ui.histFilter !== '__all__' && accounts.indexOf(ui.histFilter) < 0) ui.histFilter = '__all__';
+    sel.value = ui.histFilter;
+
+    let list = state.logs.slice().reverse();
+    const all = list.length;
+    if (ui.histFilter !== '__all__') list = list.filter(l => l.from === ui.histFilter);
+    list = list.slice(0, 300);
+
+    $('#thFrom').style.display = ui.histFilter === '__all__' ? '' : 'none';
+
+    if (!list.length) {
+      body.innerHTML = '';
+      empty.classList.remove('hidden');
+      empty.textContent = all ? '这个邮箱还没有战绩哦，快去打猎！' : '还没有打猎记录，快去吧！';
+      $('#histMeta').textContent = '';
+      return;
+    }
+    empty.classList.add('hidden');
+
+    body.innerHTML = list.map(l => {
+      const ok = l.status === '已发送';
+      return '<tr>' +
+        '<td class="muted" style="font-size:11px;white-space:nowrap">' + esc(l.time) + '</td>' +
+        (ui.histFilter === '__all__' ? '<td class="muted" style="font-size:11px"><span class="ellip" style="max-width:130px" title="' + esc(l.from) + '">' + esc(l.from) + '</span></td>' : '') +
+        '<td><span class="ellip" title="' + esc(l.company) + '">' + (esc(l.company) || '—') + '</span></td>' +
+        '<td><span class="ellip" style="color:#2E7D4F" title="' + esc(l.email) + '">' + esc(l.email) + '</span></td>' +
+        '<td style="white-space:nowrap;font-weight:800;font-size:11.5px;color:' + (ok ? '#2E7D4F' : '#C0392B') + '">' + esc(l.status) + '</td>' +
+        '<td class="muted" style="font-size:11px"><span class="ellip" style="max-width:150px" title="' + esc(l.reason || '') + '">' + (esc(l.reason) || '—') + '</span></td>' +
+      '</tr>';
+    }).join('');
+
+    $('#histMeta').textContent = '共 ' + all + ' 条记录' + (list.length < (ui.histFilter === '__all__' ? all : state.logs.filter(l => l.from === ui.histFilter).length) ? '（仅显示最近 300 条）' : '');
+  }
+
+  /* =========================================================
+     6. 发信控制
+     ========================================================= */
+  function currentRow() {
+    if (!ui.batch) return null;
+    const idx = ui.batch.indices[ui.batch.cursor];
+    if (idx === undefined) return null;
+    return state.table.rows[idx] || null;
+  }
+
+  function stopTimer() {
+    if (ui.timer) { clearInterval(ui.timer); ui.timer = null; }
+  }
+
+  function paintSendPanel() {
+    const box = $('#sendPanel');
+
+    if (!state.activeAccount) {
+      box.innerHTML =
+        '<h3 class="sec-title">🚀 发信控制</h3>' +
+        '<div class="note note-warn">⚠️ 请先在左侧「⚙️ 发件身份」里保存一个发件邮箱。<br>' +
+        '<span style="font-size:11px;opacity:.85">它只用来区分统计和签名，浏览器不会连接 SMTP。</span></div>';
+      return;
+    }
+
+    const st = statsFor(state.activeAccount);
+
+    if (!ui.sending) {
+      const pend = countBy(r => r.status === '待发送');
+      const fail = countBy(r => r.status === '发送失败');
+      const rows = state.table.rows.length;
+      box.innerHTML =
+        '<h3 class="sec-title">🚀 发信控制</h3>' +
+        '<div class="note note-info" style="margin-bottom:10px;font-size:11.5px">' +
+          '今日已发 <b>' + st.today + '</b> / 上限 <b>' + state.risk.dailyLimit + '</b> 封' +
+        '</div>' +
+        '<button class="btn btn-primary btn-wide" data-act="begin"' + (pend > 0 && rows ? '' : ' disabled') + '>' +
+          '🚀 一键启动批量发信' + (pend ? '（' + pend + ' 封待发）' : '') +
+        '</button>' +
+        '<button class="btn btn-ghost btn-wide" style="margin-top:7px" data-act="retry"' + (fail > 0 ? '' : ' disabled') + '>' +
+          '🔄 重试发送失败的邮件 (' + fail + '封)' +
+        '</button>' +
+        '<div class="divider" style="margin:12px 0"></div>' +
+        '<p class="small muted" style="margin:0;line-height:1.8">' +
+          '妙妙会一封一封把邮件准备好：你点「打开邮箱客户端」发送，回来点「已发送」，进度自动记账。' +
+          (autoMode() ? '<br><b style="color:#2E7D4F">⚡ 已启用直发接口，可自动连发。</b>' : '') +
+        '</p>';
+      return;
+    }
+
+    const row = currentRow();
+    if (!row) {
+      box.innerHTML = '<h3 class="sec-title">🚀 发信控制</h3><div class="note note-info">🎉 没有需要发送的数据了！</div>';
+      return;
+    }
+
+    const pct = ui.batch.total ? Math.round(ui.batch.done / ui.batch.total * 100) : 0;
+    const subj = fillTemplate(state.template.subject, row);
+    const bodyText = fillTemplate(state.template.body, row);
+    const badEmail = !EMAIL_RE.test(String(row.email || '').trim());
+
+    box.innerHTML =
+      '<h3 class="sec-title">🚀 发信控制</h3>' +
+      '<div class="progress"><div class="progress-bar" style="width:' + pct + '%"></div></div>' +
+      '<div class="small muted" style="display:flex;justify-content:space-between">' +
+        '<span>' + (ui.batch.mode === 'retry' ? '重试模式' : '正常模式') + ' · ' + ui.batch.batchNo + '</span>' +
+        '<span>第 ' + Math.min(ui.batch.done + 1, ui.batch.total) + ' / ' + ui.batch.total + ' 封</span>' +
+      '</div>' +
+
+      '<div class="cur-card">' +
+        '<div class="cur-company">🏢 ' + (esc(row.company) || '(无公司名)') + '</div>' +
+        '<div class="cur-mail">📧 ' + esc(row.email) + '</div>' +
+        '<div class="cur-contact">🧑‍💼 ' + (esc(row.contact) || '—') + ' · 开头：' + esc(cleanGreeting(row.contact)) + '</div>' +
+      '</div>' +
+
+      (badEmail ? '<div class="note note-bad" style="margin-bottom:9px">⚠️ 这个邮箱格式看着不太对，建议直接标记失败跳过。</div>' : '') +
+
+      '<div class="cd" id="cdChip">' +
+        (ui.countdown > 0
+          ? '⏳ 建议休整 <b id="cdVal">' + ui.countdown + '</b> 秒再发下一封 · ' +
+            '<span data-act="skip-cd" style="cursor:pointer;text-decoration:underline;color:#C0392B">跳过等待</span>'
+          : '✅ 可以发了') +
+      '</div>' +
+
+      '<div class="mail-prev">' +
+        '<div class="pv-subj">' + esc(subj) + '</div>' +
+        '<pre class="pv-body">' + esc(bodyText) + '</pre>' +
+      '</div>' +
+
+      '<div class="btn-row">' +
+        '<button class="btn btn-soft" data-act="copy-current">📋 复制主题+正文</button>' +
+        '<button class="btn btn-primary" data-act="mailto">📨 打开邮箱客户端</button>' +
+        (autoMode() ? '<button class="btn btn-primary" data-act="hook-send">⚡ 立即直发这封</button>' : '') +
+        '<button class="btn btn-ghost" data-act="mark-ok" style="color:#2E7D4F;border-color:#B7DCC8">✅ 标记已发送</button>' +
+        '<button class="btn btn-ghost" data-act="mark-fail" style="color:#C0392B;border-color:#F0C4BD">⚠️ 标记失败</button>' +
+        '<button class="btn btn-ghost" data-act="' + (ui.batch.paused ? 'resume' : 'pause') + '">' + (ui.batch.paused ? '▶ 继续' : '⏸ 暂停') + '</button>' +
+        '<button class="btn btn-ghost" data-act="stop-batch">⏹ 结束本轮</button>' +
+      '</div>';
+  }
+
+  function tick() {
+    const el = $('#cdVal');
+    if (el) el.textContent = Math.max(0, ui.countdown);
+
+    if (ui.countdown > 0) {
+      if (ui.countdown % 20 === 0) {
+        state.miao.speech = Math.random() < 0.3 ? rand(SPEECH.egg) : rand(SPEECH.sending);
+        const sp = $('#speech');
+        if (sp && ui.sending) { sp.textContent = state.miao.speech; sp.style.color = '#1976D2'; }
+        saveState();
+      }
+      ui.countdown--;
+      return;
+    }
+
+    stopTimer();
+    ui.ready = true;
+    const chip = $('#cdChip');
+    if (chip) chip.innerHTML = '✅ 可以发了';
+    if (autoMode()) sendViaHook();
+  }
+
+  function startCountdown() {
+    stopTimer();
+    ui.countdown = randInt(state.risk.delayMin, state.risk.delayMax);
+    ui.ready = ui.countdown <= 0;
+    if (ui.countdown <= 0) { ui.ready = true; return; }
+    ui.timer = setInterval(tick, 1000);
+  }
+
+  function prepareCurrent() {
+    if (!ui.batch) return;
+    if (ui.batch.paused) { paintSendPanel(); return; }
+
+    // 用循环推进，避免长名单下的深递归
+    while (true) {
+      if (ui.batch.cursor >= ui.batch.indices.length) { finishBatch(); return; }
+
+      const row = currentRow();
+      if (!row) { finishBatch(); return; }
+
+      // 状态已不适用（例如刚被历史记录标记）→ 跳过
+      if (row.status !== '待发送' && row.status !== '发送失败') {
+        ui.batch.done++; ui.batch.cursor++;
+        continue;
+      }
+
+      if (statsFor(state.activeAccount).today >= state.risk.dailyLimit) {
+        stopBatch('⚠️ 已达到单日发送上限，自动停止。');
+        return;
+      }
+
+      // 历史上发过 → 直接标记，不再打扰对方
+      if (row.status === '待发送' && historicallySent(row.email)) {
+        row.status = '已发送(历史)';
+        row.time = '之前批次';
+        saveState(true);
+        ui.batch.done++; ui.batch.cursor++;
+        paintTable();
+        continue;
+      }
+
+      // 同域名单日超发拦截
+      const dom = domainOf(row.email);
+      if (dom && domainToday(dom, state.activeAccount) >= state.risk.domainLimit) {
+        row.status = '发送失败';
+        row.time = nowStr();
+        addLog(row, '发送失败', '同域名超发拦截');
+        state.miao.speech = '同一家发太多啦，明天再去找他们玩吧！';
+        saveState(true);
+        ui.batch.done++; ui.batch.cursor++;
+        paintTable(); paintKpis(); paintBanner();
+        continue;
+      }
+
+      startCountdown();
+      paintSendPanel();
+      return;
+    }
+  }
+
+  function beginBatch(mode) {
+    if (!state.activeAccount) { toast('请先保存一个发件邮箱', '⚠️'); return; }
+    if (!state.table.rows.length) { toast('还没有名单，先上传表格吧', '📄'); return; }
+
+    const st = statsFor(state.activeAccount);
+    if (st.today >= state.risk.dailyLimit) { toast('❌ 已达到每日发送上限。', '⛔'); return; }
+
+    const indices = [];
+    state.table.rows.forEach((r, i) => {
+      if (mode === 'retry' ? r.status === '发送失败' : r.status === '待发送') indices.push(i);
+    });
+    if (!indices.length) { toast('没有需要发送的邮件', '🍼'); return; }
+
+    const batchSet = {};
+    state.logs.forEach(l => { if (l.batch) batchSet[l.batch] = 1; });
+
+    ui.batch = {
+      mode: mode, indices: indices, cursor: 0, done: 0, total: indices.length,
+      paused: false, batchNo: 'B' + (Object.keys(batchSet).length + 1)
+    };
+    ui.sending = true;
+    ui.flash = null;
+    state.miao.streak = 0;
+    saveState();
+    paintAll();
+    prepareCurrent();
+  }
+
+  function advance() {
+    if (!ui.batch) return;
+    ui.batch.done++;
+    ui.batch.cursor++;
+    paintSendPanel();
+    prepareCurrent();
+  }
+
+  function finishBatch() {
+    stopTimer();
+    ui.sending = false;
+    ui.batch = null;
+    ui.countdown = 0;
+    ui.ready = false;
+    state.miao.speech = '全部发完啦！爸爸快带妙妙去买气球！';
+    saveState(true);
+    toast('✅ 本轮发信结束！爸爸辛苦啦~', '🎉');
+    paintAll();
+  }
+
+  function stopBatch(msg) {
+    stopTimer();
+    ui.sending = false;
+    ui.batch = null;
+    ui.countdown = 0;
+    ui.ready = false;
+    if (msg) toast(msg, '⚠️');
+    saveState(true);
+    paintAll();
+  }
+
+  function markSuccess(silent) {
+    const row = currentRow();
+    if (!row) return;
+    row.status = '已发送';
+    row.time = nowStr();
+    addLog(row, '已发送', '');
+
+    state.miao.mood = Math.min(100, (Number(state.miao.mood) || 0) + 5);
+    state.miao.streak = (Number(state.miao.streak) || 0) + 1;
+    const s = state.miao.streak;
+    if (s >= 5) state.miao.speech = '🔥 ' + s + ' 连击！爸爸给妙妙买好多气球！';
+    else if (s >= 3) state.miao.speech = '🌟 哇！连中三个！爸爸好厉害~';
+    else state.miao.speech = rand(SPEECH.success);
+
+    ui.flash = 'success';
+    const today = statsFor(state.activeAccount).today;
+    if (today > 0 && today % 8 === 0) ui.newBottle = Math.min(9, Math.floor(today / 8) - 1);
+
+    saveState(true);
+    if (!silent) toast('🍼 奶瓶 +1！(连击 ' + s + ')', '🍼');
+    fireConfetti(today > 0 && today % 8 === 0 ? 'bottle' : 'normal');
+    paintBanner(); paintKpis(); paintTable();
+    advance();
+  }
+
+  function markFail(reason) {
+    const row = currentRow();
+    if (!row) return;
+    row.status = '发送失败';
+    row.time = nowStr();
+    addLog(row, '发送失败', reason || '');
+
+    state.miao.streak = 0;
+    state.miao.mood = Math.max(0, (Number(state.miao.mood) || 0) - 10);
+    state.miao.speech = rand(SPEECH.fail);
+    ui.flash = 'fail';
+
+    saveState(true);
+    toast('❌ 已标记失败：' + (reason || '未填写原因'), '😭');
+    paintBanner(); paintKpis(); paintTable();
+    advance();
+  }
+
+  async function sendViaHook() {
+    const row = currentRow();
+    if (!row) return;
+    const url = state.settings.hookUrl;
+    if (!url) { toast('还没配置直发接口地址', '⚠️'); return; }
+
+    const payload = {
+      to: String(row.email || '').trim(),
+      subject: fillTemplate(state.template.subject, row),
+      body: fillTemplate(state.template.body, row),
+      from: state.activeAccount,
+      fromName: (state.accounts[state.activeAccount] && state.accounts[state.activeAccount].name) || 'Sales',
+      company: row.company || '',
+      contact: row.contact || ''
+    };
+
+    const headers = { 'Content-Type': 'application/json' };
+    if (state.settings.hookToken) headers['Authorization'] = 'Bearer ' + state.settings.hookToken;
+
+    toast('⚡ 正在通过直发接口发送…', '📡');
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => '');
+        throw new Error('HTTP ' + res.status + ' ' + String(txt).slice(0, 120));
+      }
+      markSuccess(true);
+      toast('直发成功，已自动记账', '✅');
+    } catch (e) {
+      markFail('直发接口失败：' + (e && e.message ? e.message : '未知错误'));
+    }
+  }
+
+  function mailtoFor(row) {
+    const subj = fillTemplate(state.template.subject, row);
+    const body = fillTemplate(state.template.body, row);
+    const base = 'mailto:' + encodeURIComponent(String(row.email || '').trim());
+    const parts = ['subject=' + encodeURIComponent(subj)];
+    if (encodeURIComponent(body).length < 1500) parts.push('body=' + encodeURIComponent(body));
+    return base + '?' + parts.join('&');
+  }
+
+  /* =========================================================
+     7. 表格导入 / 导出
+     ========================================================= */
+  function findKey(obj, aliases) {
+    const keys = Object.keys(obj);
+    for (let i = 0; i < aliases.length; i++) {
+      const a = aliases[i];
+      const hit = keys.filter(k => String(k).trim() === a)[0];
+      if (hit) return hit;
+    }
+    for (let i = 0; i < aliases.length; i++) {
+      const a = aliases[i].toLowerCase();
+      const hit = keys.filter(k => String(k).trim().toLowerCase().indexOf(a) >= 0)[0];
+      if (hit) return hit;
+    }
+    return '';
+  }
+
+  function normalizeRow(o) {
+    const kCompany = findKey(o, ALIAS.company);
+    const kContact = findKey(o, ALIAS.contact);
+    const kEmail = findKey(o, ALIAS.email);
+    const kStatus = findKey(o, ALIAS.status);
+    const kTime = findKey(o, ALIAS.time);
+
+    const val = k => (k ? String(o[k] == null ? '' : o[k]).trim() : '');
+    let time = val(kTime);
+    if (/^(nan|nat|null|undefined)$/i.test(time)) time = '';
+
+    const used = [kCompany, kContact, kEmail, kStatus, kTime].filter(Boolean);
+    const extra = {};
+    Object.keys(o).forEach(k => {
+      if (used.indexOf(k) >= 0) return;
+      if (k === '__parsed') return;
+      extra[k] = o[k];
+    });
+
+    return {
+      company: val(kCompany),
+      contact: val(kContact),
+      email: val(kEmail),
+      status: val(kStatus) || '待发送',
+      time: time,
+      extra: extra
+    };
+  }
+
+  function readFileAs(file, how) {
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result);
+      fr.onerror = () => reject(fr.error || new Error('读取文件失败'));
+      if (how === 'text') fr.readAsText(file, 'utf-8');
+      else fr.readAsArrayBuffer(file);
+    });
+  }
+
+  async function handleFile(file) {
+    if (!file) return;
+    if (typeof XLSX === 'undefined') {
+      toast('表格解析库 (SheetJS) 没加载成功，请检查网络后刷新', '⚠️');
+      return;
+    }
+    try {
+      const buf = await readFileAs(file, 'array');
+      const wb = XLSX.read(buf, { type: 'array', cellDates: true });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      if (!ws) { toast('这个文件里没有可读的工作表', '📄'); return; }
+      const arr = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false });
+      if (!arr.length) { toast('表里没有读到数据，确认第一行是表头', '📄'); return; }
+
+      const rows = arr.map(normalizeRow).filter(r => r.email);
+      if (!rows.length) {
+        toast('没找到邮箱列，表头请包含「联系人邮箱」', '⚠️');
+        return;
+      }
+
+      if (state.table.rows.length) {
+        const ok = await confirmDialog(
+          '覆盖当前表格？',
+          '当前已有 <b>' + state.table.rows.length + '</b> 条名单，导入后会被替换（发送进度也会一起清空）。<br>建议先点「导出进度表」备份。',
+          '覆盖导入'
+        );
+        if (!ok) return;
+      }
+
+      state.table = { name: file.name, importedAt: nowStr(), rows: rows };
+      ui.page = 1;
+      saveState(true);
+      paintAll();
+      toast('已读入 ' + rows.length + ' 条名单，妙妙开始干活', '📄');
+    } catch (e) {
+      console.error(e);
+      toast('解析失败：' + (e && e.message ? e.message : '未知错误'), '⚠️');
+    }
+  }
+
+  function exportProgress() {
+    const rows = state.table.rows;
+    if (!rows.length) { toast('还没有名单可以导出', '📄'); return; }
+    if (typeof XLSX === 'undefined') { toast('导出库没加载成功，请刷新重试', '⚠️'); return; }
+
+    const data = rows.map(r => {
+      const o = {};
+      const extra = r.extra || {};
+      Object.keys(extra).forEach(k => { o[k] = extra[k]; });
+      o['公司名称'] = r.company;
+      o['联系人名称'] = r.contact;
+      o['联系人邮箱'] = r.email;
+      o['发送状态'] = r.status;
+      o['发送时间'] = r.time;
+      return o;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '名单');
+    const base = String(state.table.name || '妙妙名单').replace(/\.(xlsx|xls|csv)$/i, '');
+    XLSX.writeFile(wb, base + '_sent.xlsx');
+    toast('进度表已导出', '⬇️');
+  }
+
+  function csvCell(v) {
+    const s = String(v == null ? '' : v);
+    return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+
+  function exportLogs() {
+    if (!state.logs.length) { toast('还没有战绩可以导出', '📄'); return; }
+    const head = ['发送时间', '发件邮箱', '公司名称', '联系人邮箱', '发送状态', '失败原因', '发送批次'];
+    const lines = [head.join(',')].concat(state.logs.map(l => (
+      [l.time, l.from, l.company, l.email, l.status, l.reason, l.batch].map(csvCell).join(',')
+    )));
+    const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    download(blob, 'send_logs.csv');
+    toast('战绩本已导出', '⬇️');
+  }
+
+  function exportBackup() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    download(blob, 'miao_neinei_backup_' + ymd() + '.json');
+    toast('备份已导出，收好它', '🧳');
+  }
+
+  function importBackup() {
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = '.json,application/json';
+    inp.onchange = async () => {
+      const f = inp.files && inp.files[0];
+      if (!f) return;
+      try {
+        const txt = await readFileAs(f, 'text');
+        const obj = JSON.parse(txt);
+        if (!obj || typeof obj !== 'object') throw new Error('格式不对');
+        const ok = await confirmDialog('恢复备份？', '当前浏览器里的数据会被这份备份<b>完全覆盖</b>。', '覆盖恢复');
+        if (!ok) return;
+        state = deepMerge(defaultState(), obj);
+        saveState(true);
+        syncFormFromState();
+        paintAll();
+        toast('备份已恢复', '📥');
+      } catch (e) {
+        toast('恢复失败：' + (e && e.message ? e.message : '文件无法解析'), '⚠️');
+      }
+    };
+    inp.click();
+  }
+
+  async function wipeAll() {
+    const ok = await confirmDialog(
+      '清空全部数据？',
+      '名单、战绩、账号、模板、设置会<b>全部删除</b>，无法撤销。<br>建议先「备份全部数据」再操作。',
+      '我确定，全部清空'
+    );
+    if (!ok) return;
+    localStorage.removeItem(LS_KEY);
+    state = defaultState();
+    saveState(true);
+    syncFormFromState();
+    paintAll();
+    toast('已清空，回到干干净净的起点', '🧹');
+  }
+
+  /* =========================================================
+     8. 侧边栏表单同步
+     ========================================================= */
+  function renderToolGrids() {
+    $('#toolBox').innerHTML = TOOL_GROUPS.map(([title, links]) => (
+      '<div class="group-title">' + esc(title) + '</div><div class="tool-grid">' +
+      links.map(([label, url]) => '<a class="tool-btn" href="' + url + '" target="_blank" rel="noopener">' + esc(label) + '</a>').join('') +
+      '</div>'
+    )).join('');
+
+    $('#fairBox').innerHTML = FAIRS.map(([label, url]) => (
+      '<a class="btn btn-ghost btn-sm btn-wide" style="justify-content:flex-start;text-decoration:none" href="' + url + '" target="_blank" rel="noopener">' + esc(label) + '</a>'
+    )).join('');
+
+    $('#checkBox').innerHTML = '<div class="tool-grid">' + CHECKS.map(([label, url]) => (
+      '<a class="tool-btn" href="' + url + '" target="_blank" rel="noopener">' + esc(label) + '</a>'
+    )).join('') + '</div>';
+  }
+
+  function paintAccounts() {
+    const keys = Object.keys(state.accounts);
+    const sel = $('#accSelect');
+    let html = keys.map(k => '<option value="' + esc(k) + '">' + esc(k) + '</option>').join('');
+    html += '<option value="__new__">➕ 新建配置…</option>';
+    sel.innerHTML = html;
+    sel.value = state.activeAccount && keys.indexOf(state.activeAccount) >= 0 ? state.activeAccount : '__new__';
+
+    if (sel.value === '__new__') {
+      $('#accEmail').value = '';
+      $('#accName').value = 'Sales';
+    } else {
+      const a = state.accounts[sel.value] || {};
+      $('#accEmail').value = sel.value;
+      $('#accName').value = a.name || 'Sales';
+    }
+  }
+
+  function syncFormFromState() {
+    $('#tplSubject').value = state.template.subject;
+    $('#tplBody').value = state.template.body;
+    $('#dailyLimit').value = state.risk.dailyLimit;
+    $('#domainLimit').value = state.risk.domainLimit;
+    $('#delayMin').value = state.risk.delayMin;
+    $('#delayMax').value = state.risk.delayMax;
+    $('#apiKeyInput').value = state.settings.apiKey || '';
+    $('#apiBaseInput').value = state.settings.apiBase || '';
+    $('#apiModelInput').value = state.settings.model || '';
+    $('#hookUrl').value = state.settings.hookUrl || '';
+    $('#hookToken').value = state.settings.hookToken || '';
+    $('#useHook').checked = !!state.settings.useHook;
+    paintAccounts();
+    paintKeyState();
+    paintPreview();
+  }
+
+  function paintKeyState() {
+    const has = !!(state.settings.apiKey && state.settings.apiKey.trim());
+    const dot = $('#keyDot');
+    dot.style.color = has ? '#2E7D4F' : '#C7D2CB';
+    $('#keyStateText').textContent = has
+      ? '已配置 · ' + (state.settings.model || 'deepseek-chat')
+      : '未配置 · 只存本机浏览器';
+    const badge = $('#engineBadge');
+    badge.innerHTML = '<span class="dot"></span> 发送引擎：' + (autoMode() ? '直发接口' : '邮箱客户端');
+    badge.className = 'badge ' + (autoMode() ? 'badge-soft' : 'badge-gray');
+  }
+
+  function paintPreview() {
+    const sample = { company: 'Global Toy Trading Co.', contact: 'John Smith', email: 'john@globaltoy.com' };
+    const txt = '主题：' + fillTemplate(state.template.subject, sample) + '\n\n' + fillTemplate(state.template.body, sample);
+    $('#tplPreview').textContent = txt;
+  }
+
+  function paintAll() {
+    paintBanner();
+    paintKpis();
+    paintTable();
+    paintSendPanel();
+    paintHistory();
+    paintAccounts();
+    paintKeyState();
+  }
+
+  /* =========================================================
+     9. AI
+     ========================================================= */
+  async function callAI(prompt, temperature) {
+    const key = (state.settings.apiKey || '').trim();
+    if (!key) {
+      const err = new Error('还没有配置 API Key');
+      err.code = 'NO_KEY';
+      throw err;
+    }
+    const base = (state.settings.apiBase || 'https://api.deepseek.com').replace(/\/+$/, '');
+    const res = await fetch(base + '/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + key
+      },
+      body: JSON.stringify({
+        model: (state.settings.model || 'deepseek-chat'),
+        messages: [{ role: 'user', content: prompt }],
+        temperature: temperature == null ? 0.7 : temperature
+      })
+    });
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      throw new Error('HTTP ' + res.status + ' ' + String(t).slice(0, 160));
+    }
+    const json = await res.json();
+    const txt = json && json.choices && json.choices[0] && json.choices[0].message
+      ? json.choices[0].message.content
+      : '';
+    if (!txt) throw new Error('返回内容为空');
+    return String(txt).trim();
+  }
+
+  function aiErrorHelp(e) {
+    if (e && e.code === 'NO_KEY') {
+      return '还没配置 API Key。点右上角「🔑 API」填入你自己的 DeepSeek Key（只存本机）。';
+    }
+    const m = String(e && e.message ? e.message : e);
+    if (/Failed to fetch|NetworkError|Load failed/i.test(m)) {
+      return '网络或跨域被拦住了（浏览器直连 AI 接口偶尔会被 CORS 拦截）。可点下方「复制 Prompt」，直接粘到 chat.deepseek.com 里问。';
+    }
+    return '调用失败：' + m;
+  }
+
+  function showAiFallback(container, prompt) {
+    const wrap = document.createElement('div');
+    wrap.style.marginTop = '8px';
+    wrap.innerHTML =
+      '<button class="btn btn-ghost btn-sm btn-wide" data-copy-ai="1">📋 复制 Prompt 去网页版问</button>' +
+      '<a class="btn btn-soft btn-sm btn-wide" style="margin-top:5px;text-decoration:none" href="https://chat.deepseek.com" target="_blank" rel="noopener">打开 DeepSeek 网页版</a>';
+    container.appendChild(wrap);
+    const btn = wrap.querySelector('[data-copy-ai]');
+    btn.addEventListener('click', async () => {
+      const ok = await copyText(prompt);
+      toast(ok ? 'Prompt 已复制，去网页版粘贴即可' : '复制失败，请手动选择', ok ? '📋' : '⚠️');
+    });
+  }
+
+  async function genKeywords() {
+    const idea = $('#kwInput').value.trim();
+    const out = $('#kwResult');
+    if (!idea) { toast('请先输入你的产品~', '✍️'); return; }
+    const prompt = '我是一名外贸业务员，我的产品是：【' + idea + '】。目标客户是海外的独立买手店、潮玩店。' +
+      '请帮我头脑风暴5个最受欧美/日韩欢迎的英文核心搜索词或行业地道词，只输出这5个英文词，用逗号隔开，不要任何废话。';
+    out.classList.remove('hidden');
+    $('#kwOut').textContent = 'AI 正在头脑风暴…';
+    $('#kwOut').innerHTML = '<span class="muted">AI 正在头脑风暴…</span>';
+    try {
+      const txt = await callAI(prompt);
+      ui.lastKeywords = txt;
+      $('#kwOut').innerHTML = '<div style="font-weight:800;margin-bottom:4px">🎉 AI 拓展成功！</div>' + esc(txt);
+    } catch (e) {
+      $('#kwOut').innerHTML = '<div style="color:#C0392B;margin-bottom:6px">' + esc(aiErrorHelp(e)) + '</div>';
+      showAiFallback($('#kwOut'), prompt);
+    }
+  }
+
+  async function genDraft() {
+    const want = $('#aiPrompt').value.trim();
+    if (!want) { toast('请先输入你要表达的中文意思~', '✍️'); return; }
+    const prompt = '你是一名资深外贸业务员。我的产品是：毛绒玩具、捏捏乐、动漫周边。\n' +
+      '我要发给海外买手店的群发邮件，我的核心诉求是：' + want + '\n\n' +
+      '【最高级别警告指令】：\n' +
+      '1. 这是一个群发系统模板！邮件正文开头必须保留 `{greeting}`，正文中必须包含 `{company}`。\n' +
+      '2. 无论如何润色、改写或重新组织语言，绝对不允许把 `{greeting}` 和 `{company}` 这两个大括号变量替换成具体的名字。\n' +
+      '3. 语气专业、真诚、不卑不亢，符合欧美商务习惯。\n' +
+      '4. 只输出英文正文，不要任何中文解释，不要任何 Markdown 格式符号。\n' +
+      '5. 不需要写邮件主题。';
+
+    const wrap = $('#aiDraftWrap');
+    wrap.classList.remove('hidden');
+    $('#aiDraftText').innerHTML = '<span class="muted">DeepSeek 正在为你撰写地道英文…</span>';
+
+    try {
+      const txt = await callAI(prompt);
+      ui.draft = txt;
+      $('#aiDraftText').textContent = txt;
+    } catch (e) {
+      $('#aiDraftText').innerHTML = '<div style="color:#C0392B">' + esc(aiErrorHelp(e)) + '</div>';
+      showAiFallback($('#aiDraftText'), prompt);
+      ui.draft = '';
+    }
+  }
+
+  async function testApi() {
+    const st = $('#apiState');
+    const key = $('#apiKeyInput').value.trim();
+    if (!key) { st.innerHTML = '<span style="color:#C0392B">请先填 Key</span>'; return; }
+    st.innerHTML = '<span class="muted">测试中…</span>';
+    const backup = state.settings.apiKey;
+    state.settings.apiKey = key;
+    try {
+      await callAI('只回复两个字：在的', 0);
+      st.innerHTML = '<span style="color:#2E7D4F;font-weight:700">✅ 连接正常</span>';
+    } catch (e) {
+      st.innerHTML = '<span style="color:#C0392B">❌ ' + esc(String(e.message).slice(0, 90)) + '</span>';
+    }
+    state.settings.apiKey = backup;
+  }
+
+  /* =========================================================
+     10. 弹窗
+     ========================================================= */
+  let confirmResolve = null;
+
+  function confirmDialog(title, msg, okText, danger) {
+    return new Promise(resolve => {
+      confirmResolve = resolve;
+      $('#cfTitle').textContent = title;
+      $('#cfMsg').innerHTML = msg;
+      const ok = $('#cfOk');
+      ok.textContent = okText || '确定';
+      ok.className = 'btn btn-sm ' + (danger === false ? 'btn-primary' : 'btn-danger');
+      $('#confirmModal').classList.remove('hidden');
+    });
+  }
+
+  function closeConfirm(v) {
+    $('#confirmModal').classList.add('hidden');
+    if (confirmResolve) { confirmResolve(v); confirmResolve = null; }
+  }
+
+  function openApi() {
+    syncFormFromState();
+    $('#apiState').innerHTML = '';
+    $('#apiModal').classList.remove('hidden');
+  }
+
+  /* =========================================================
+     11. 事件绑定
+     ========================================================= */
+  document.addEventListener('click', async function (e) {
+    const t = e.target.closest('[data-act]');
+    if (!t) return;
+    const act = t.getAttribute('data-act');
+
+    switch (act) {
+      /* --- 顶部/侧栏 --- */
+      case 'open-api': openApi(); break;
+      case 'close-api': $('#apiModal').classList.add('hidden'); break;
+      case 'save-api': {
+        state.settings.apiKey = $('#apiKeyInput').value.trim();
+        state.settings.apiBase = $('#apiBaseInput').value.trim() || 'https://api.deepseek.com';
+        state.settings.model = $('#apiModelInput').value.trim() || 'deepseek-chat';
+        state.settings.hookUrl = $('#hookUrl').value.trim();
+        state.settings.hookToken = $('#hookToken').value.trim();
+        state.settings.useHook = $('#useHook').checked;
+        saveState(true);
+        paintKeyState(); paintSendPanel();
+        $('#apiModal').classList.add('hidden');
+        toast('设置已保存到本机', '🔑');
+        break;
+      }
+      case 'clear-key': {
+        state.settings.apiKey = '';
+        $('#apiKeyInput').value = '';
+        saveState(true); paintKeyState();
+        toast('密钥已清除', '🧹');
+        break;
+      }
+      case 'toggle-pwd': {
+        const inp = $('#apiKeyInput');
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+        break;
+      }
+      case 'test-api': testApi(); break;
+      case 'onboard-done': {
+        state.settings.onboarded = true;
+        saveState(true);
+        $('#onboardModal').classList.add('hidden');
+        break;
+      }
+
+      /* --- 账号 --- */
+      case 'save-acc': {
+        const email = $('#accEmail').value.trim();
+        const name = $('#accName').value.trim() || 'Sales';
+        if (!EMAIL_RE.test(email)) { toast('邮箱格式看着不对，检查一下~', '⚠️'); break; }
+        state.accounts[email] = { name: name };
+        state.activeAccount = email;
+        saveState(true);
+        paintAccounts(); paintAll();
+        toast('账号已保存：' + email, '💾');
+        break;
+      }
+      case 'del-acc': {
+        const email = state.activeAccount;
+        if (!email || !state.accounts[email]) { toast('当前没有选中的账号', '⚠️'); break; }
+        const ok = await confirmDialog('删除这个账号？', '只删除本地保存的「<b>' + esc(email) + '</b>」配置，历史战绩不会丢。', '删除');
+        if (!ok) break;
+        delete state.accounts[email];
+        state.activeAccount = Object.keys(state.accounts)[0] || '';
+        saveState(true);
+        paintAccounts(); paintAll();
+        toast('账号已删除', '🗑️');
+        break;
+      }
+
+      /* --- 模板 --- */
+      case 'tpl-reset': {
+        state.template = { subject: DEFAULT_SUBJECT, body: DEFAULT_BODY };
+        $('#tplSubject').value = DEFAULT_SUBJECT;
+        $('#tplBody').value = DEFAULT_BODY;
+        saveState(true); paintPreview();
+        toast('已恢复默认话术', '↺');
+        break;
+      }
+      case 'ins-var': {
+        const v = t.getAttribute('data-var');
+        const ta = $('#tplBody');
+        const s = ta.selectionStart || 0;
+        const epos = ta.selectionEnd || 0;
+        ta.value = ta.value.slice(0, s) + v + ta.value.slice(epos);
+        ta.focus();
+        ta.selectionStart = ta.selectionEnd = s + v.length;
+        state.template.body = ta.value;
+        saveState(); paintPreview();
+        break;
+      }
+      case 'gen-mail': genDraft(); break;
+      case 'adopt-draft': {
+        if (!ui.draft) { toast('还没有草稿', '⚠️'); break; }
+        state.template.body = ui.draft;
+        $('#tplBody').value = ui.draft;
+        ui.draft = '';
+        $('#aiDraftWrap').classList.add('hidden');
+        saveState(true); paintPreview();
+        toast('已替换正文，记得检查一下变量', '✅');
+        break;
+      }
+      case 'drop-draft': {
+        ui.draft = '';
+        $('#aiDraftWrap').classList.add('hidden');
+        break;
+      }
+
+      /* --- 工具 --- */
+      case 'gen-keywords': genKeywords(); break;
+      case 'copy-keywords': {
+        if (!ui.lastKeywords) break;
+        const ok = await copyText(ui.lastKeywords);
+        toast(ok ? '已复制，去粘吧' : '复制失败，手动选一下', ok ? '📋' : '⚠️');
+        break;
+      }
+      case 'gen-dorks': {
+        const shop = $('#dorkShop').value;
+        const prod = $('#dorkProduct').value.trim();
+        const market = $('#dorkMarket').value;
+        if (!prod) { toast('请先输入产品词哦~', '✍️'); break; }
+        let d = 'intitle:"' + shop + '" "' + prod + '"';
+        if (market === '美国') d += ' (site:.com OR site:.us)';
+        else if (market === '墨西哥') d += ' (site:.mx OR "Mexico")';
+        d += ' -site:amazon.com -site:etsy.com -site:pinterest.com -site:aliexpress.com';
+        $('#dorkResult').classList.remove('hidden');
+        $('#dorkOut').textContent = d;
+        $('#dorkLink').href = 'https://www.google.com/search?q=' + encodeURIComponent(d);
+        break;
+      }
+      case 'gen-map': {
+        const country = $('#mapCountry').value;
+        const city = $('#mapCity').value.trim();
+        const shop = $('#mapShop').value;
+        if (!city) { toast('请输入一个目标城市哦~', '✍️'); break; }
+        const q = shop + ' in ' + city + ', ' + country;
+        $('#mapResult').classList.remove('hidden');
+        $('#mapOut').textContent = q;
+        $('#mapLink').href = 'https://www.google.com/maps/search/' + encodeURIComponent(q);
+        break;
+      }
+
+      /* --- 表格 --- */
+      case 'pick-file': $('#fileInput').click(); break;
+      case 'prev-page': ui.page = Math.max(1, ui.page - 1); paintTable(); break;
+      case 'next-page': ui.page = ui.page + 1; paintTable(); break;
+      case 'export-xlsx': exportProgress(); break;
+      case 'export-logs': exportLogs(); break;
+      case 'export-backup': exportBackup(); break;
+      case 'import-backup': importBackup(); break;
+      case 'wipe': wipeAll(); break;
+      case 'clear-logs': {
+        if (!state.logs.length) { toast('本来就是空的', '📄'); break; }
+        const ok = await confirmDialog('清空战绩本？', '会删除全部发信记录，<b>今日/本月统计会归零</b>，但名单里的状态不会变。', '清空记录');
+        if (!ok) break;
+        state.logs = [];
+        saveState(true); paintAll();
+        toast('战绩本已清空', '🧽');
+        break;
+      }
+
+      /* --- 发信 --- */
+      case 'begin': beginBatch('pending'); break;
+      case 'retry': beginBatch('retry'); break;
+      case 'pause': {
+        if (ui.batch) { ui.batch.paused = true; stopTimer(); paintSendPanel(); toast('已暂停，随时可以继续', '⏸'); }
+        break;
+      }
+      case 'resume': {
+        if (ui.batch) {
+          ui.batch.paused = false;
+          if (ui.countdown > 0) { stopTimer(); ui.timer = setInterval(tick, 1000); }
+          else { ui.ready = true; }
+          paintSendPanel();
+        }
+        break;
+      }
+      case 'stop-batch': {
+        const ok = await confirmDialog('结束本轮发信？', '已经发过的会保留记录，剩下的下次再继续。', '结束');
+        if (!ok) break;
+        stopBatch('本轮已结束');
+        break;
+      }
+      case 'skip-cd': {
+        stopTimer();
+        ui.countdown = 0;
+        ui.ready = true;
+        paintSendPanel();
+        break;
+      }
+      case 'copy-current': {
+        const row = currentRow();
+        if (!row) break;
+        const txt = 'Subject: ' + fillTemplate(state.template.subject, row) + '\n\n' + fillTemplate(state.template.body, row);
+        const ok = await copyText(txt);
+        toast(ok ? '主题 + 正文已复制' : '复制失败，请手动选中预览框', ok ? '📋' : '⚠️');
+        break;
+      }
+      case 'mailto': {
+        const row = currentRow();
+        if (!row) break;
+        if (!EMAIL_RE.test(String(row.email || '').trim())) { toast('这个邮箱格式不对，发不出去', '⚠️'); break; }
+        const body = fillTemplate(state.template.body, row);
+        const copied = await copyText(body);
+        if (!copied) toast('正文没能自动复制，请从预览框手动复制', '⚠️');
+        window.location.href = mailtoFor(row);
+        break;
+      }
+      case 'mark-ok': markSuccess(); break;
+      case 'mark-fail': {
+        $('#failPreset').value = '';
+        $('#failReason').value = '';
+        $('#failModal').classList.remove('hidden');
+        break;
+      }
+      case 'close-fail': $('#failModal').classList.add('hidden'); break;
+      case 'confirm-fail': {
+        const preset = $('#failPreset').value;
+        const manual = $('#failReason').value.trim();
+        const reason = preset && manual ? preset + ' · ' + manual : (preset || manual);
+        $('#failModal').classList.add('hidden');
+        markFail(reason);
+        break;
+      }
+      case 'hook-send': {
+        if (ui.countdown > 0) {
+          const ok = await confirmDialog('还没到休整时间', '距离建议的随机延迟还有 <b>' + ui.countdown + '</b> 秒，确定现在直发？', '现在发', false);
+          if (!ok) break;
+        }
+        stopTimer(); ui.countdown = 0;
+        sendViaHook();
+        break;
+      }
+      case 'poke': pokeMiao(e); break;
+      default: break;
+    }
+  });
+
+  /* 输入类绑定 */
+  function bindInputs() {
+    $('#fileInput').addEventListener('change', function () {
+      const f = this.files && this.files[0];
+      if (f) handleFile(f);
+      this.value = '';
+    });
+
+    const dz = $('#dropzone');
+    dz.addEventListener('click', () => $('#fileInput').click());
+    ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => {
+      e.preventDefault(); dz.classList.add('drag');
+    }));
+    ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => {
+      e.preventDefault(); dz.classList.remove('drag');
+    }));
+    dz.addEventListener('drop', e => {
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) handleFile(f);
+    });
+
+    $('#searchInput').addEventListener('input', function () {
+      ui.q = this.value; ui.page = 1; paintTable();
+    });
+    $('#statusFilter').addEventListener('change', function () {
+      ui.filter = this.value; ui.page = 1; paintTable();
+    });
+    $('#histFilter').addEventListener('change', function () {
+      ui.histFilter = this.value; paintHistory();
+    });
+
+    $('#accSelect').addEventListener('change', function () {
+      const v = this.value;
+      if (v === '__new__') {
+        $('#accEmail').value = '';
+        $('#accName').value = 'Sales';
+        return;
+      }
+      state.activeAccount = v;
+      saveState(true);
+      paintAccounts();
+      paintAll();
+    });
+
+    $('#tplSubject').addEventListener('input', function () {
+      state.template.subject = this.value; saveState(); paintPreview();
+    });
+    $('#tplBody').addEventListener('input', function () {
+      state.template.body = this.value; saveState(); paintPreview();
+    });
+    $('#aiPrompt').addEventListener('input', function () {
+      /* 不需要持久化，留空 */
+    });
+
+    const numBind = (sel, key, min) => {
+      $(sel).addEventListener('change', function () {
+        let v = parseInt(this.value, 10);
+        if (isNaN(v) || v < min) v = min;
+        this.value = v;
+        state.risk[key] = v;
+        saveState(true); paintSendPanel();
+      });
+    };
+    numBind('#dailyLimit', 'dailyLimit', 1);
+    numBind('#domainLimit', 'domainLimit', 1);
+    numBind('#delayMin', 'delayMin', 0);
+    numBind('#delayMax', 'delayMax', 0);
+
+    $('#cfOk').addEventListener('click', () => closeConfirm(true));
+    $('#cfCancel').addEventListener('click', () => closeConfirm(false));
+    $('#confirmModal').addEventListener('click', e => {
+      if (e.target.id === 'confirmModal') closeConfirm(false);
+    });
+    $$('.modal').forEach(m => {
+      m.addEventListener('click', e => {
+        if (e.target === m && m.id !== 'confirmModal' && m.id !== 'onboardModal') m.classList.add('hidden');
+      });
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        ['#apiModal', '#failModal', '#confirmModal'].forEach(s => {
+          const el = $(s);
+          if (el && !el.classList.contains('hidden')) {
+            el.classList.add('hidden');
+            if (s === '#confirmModal' && confirmResolve) { confirmResolve(false); confirmResolve = null; }
+          }
+        });
+      }
+    });
+
+    $('#menuBtn').addEventListener('click', () => {
+      $('#sidebar').classList.add('open');
+      $('#scrim').classList.add('show');
+    });
+    $('#scrim').addEventListener('click', () => {
+      $('#sidebar').classList.remove('open');
+      $('#scrim').classList.remove('show');
+    });
+  }
+
+  /* =========================================================
+     12. 启动
+     ========================================================= */
+  function boot() {
+    state = loadState();
+    state.miao.mood = Math.max(0, Math.min(100, Number(state.miao.mood) || 50));
+
+    if (!state.activeAccount || !state.accounts[state.activeAccount]) {
+      const first = Object.keys(state.accounts)[0];
+      state.activeAccount = first || '';
+    }
+
+    renderToolGrids();
+    bindInputs();
+    syncFormFromState();
+    paintAll();
+
+    if (!state.settings.onboarded) {
+      $('#onboardModal').classList.remove('hidden');
+    }
+
+    const today = ymd();
+    if (state.miao.lastVisit !== today) {
+      state.miao.lastVisit = today;
+      saveState();
+    }
+
+    // 关页面 / 切后台时把还没落盘的改动写进去
+    window.addEventListener('beforeunload', flushSave);
+    window.addEventListener('pagehide', flushSave);
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') flushSave();
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+})();
+</script>
+</body>
+</html>
