@@ -291,6 +291,56 @@
   .divider{height:1px;background:var(--line);margin:14px 0}
   .foot{text-align:center;font-size:11px;color:var(--ink3);line-height:1.9;padding:26px 0 8px}
   a{color:var(--brand)}
+
+  /* ---------- 情报雷达站 ---------- */
+  .radar-card{max-width:1040px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;padding:0;min-width:0}
+  .radar-card .modal-head{flex:0 0 auto;padding:14px 18px 12px}
+  .radar-tabs{display:flex;gap:6px;padding:0 16px;border-bottom:1px solid var(--line);overflow-x:auto;flex:0 0 auto;background:#fff;min-width:0}
+  .rtab{
+    border:1px solid transparent;border-bottom:none;background:transparent;color:var(--ink2);
+    border-radius:10px 10px 0 0;padding:9px 12px;font-size:12.5px;font-weight:800;cursor:pointer;
+    white-space:nowrap;font-family:inherit;transition:all .15s;
+  }
+  .rtab:hover{background:var(--mint-2);color:var(--brand)}
+  .rtab.on{background:var(--cream);color:var(--brand);border-color:var(--line);margin-bottom:-1px}
+  .rtab .rtab-n{font-size:10.5px;font-weight:800;background:var(--mint);border:1px solid var(--line);border-radius:20px;padding:1px 6px;margin-left:5px;color:var(--brand)}
+  .radar-body{padding:14px 16px 18px;overflow:auto;flex:1 1 auto;background:var(--cream);min-width:0}
+  .radar-cols{display:grid;grid-template-columns:minmax(0,318px) minmax(0,1fr);gap:13px;align-items:start}
+  .radar-cols > *{min-width:0}
+  @media (max-width:860px){.radar-cols{grid-template-columns:minmax(0,1fr)}}
+  .rpanel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px;box-shadow:var(--shadow)}
+  .rpanel > h4{margin:0 0 10px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:6px}
+  .rlist{display:flex;flex-direction:column;gap:8px}
+  .rcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;transition:box-shadow .18s,border-color .18s}
+  .rcard:hover{border-color:var(--brand-soft);box-shadow:0 8px 22px -16px rgba(46,125,79,.55)}
+  .rcard-top{display:flex;align-items:flex-start;gap:8px}
+  .rcard-name{font-size:13px;font-weight:800;line-height:1.35;word-break:break-word;flex:1;min-width:0}
+  .stars{font-size:11px;color:#E6A100;letter-spacing:1.5px;white-space:nowrap;flex:0 0 auto}
+  .rchips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+  .tagx{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--mint);color:var(--brand);border:1px solid var(--line);white-space:nowrap}
+  .tagx.type{background:#FFF3E0;color:#C05621;border-color:#F6DDBB}
+  .tagx.soft{background:#F3F5F4;color:var(--ink2);border-color:#E6EBE8}
+  .tagx.done{background:#E8F5E9;color:#2E7D32;border-color:#C8E6C9}
+  .ract{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;align-items:center}
+  .rlink{font-size:11.5px;font-weight:800;color:var(--brand);text-decoration:none;display:inline-flex;align-items:center;gap:3px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rlink:hover{text-decoration:underline}
+  .rmini-btn{border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:8px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+  .rmini-btn:hover{background:var(--mint);color:var(--brand);border-color:var(--brand-soft)}
+  .rmini-btn.danger:hover{background:var(--red-soft);color:var(--red);border-color:#F0B3AB}
+  .rnote{font-size:12px;line-height:1.75;color:var(--ink2);white-space:pre-wrap;word-break:break-word;margin:7px 0 0}
+  .rempty{text-align:center;padding:24px 14px;color:var(--ink3);font-size:12px;line-height:1.9;background:#fff;border:1px dashed var(--line);border-radius:12px}
+  .rstat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:10px}
+  .rstat > div{background:var(--mint-2);border:1px solid var(--line);border-radius:10px;padding:6px 4px;text-align:center}
+  .rstat b{display:block;font-size:15px;color:var(--brand);line-height:1.2}
+  .rstat span{font-size:10px;color:var(--ink3)}
+  .rchip-bar{display:flex;gap:5px;flex-wrap:wrap}
+  .rchip{border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:20px;padding:5px 10px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+  .rchip:hover{background:var(--mint)}
+  .rchip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .radar-mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-bottom:8px}
+  .radar-mini > div{background:var(--mint-2);border:1px solid var(--line);border-radius:9px;padding:6px 2px;text-align:center}
+  .radar-mini b{display:block;font-size:14px;color:var(--brand);line-height:1.15}
+  .radar-mini span{font-size:9.5px;color:var(--ink3)}
 </style>
 </head>
 <body>
@@ -430,6 +480,26 @@
             </details>
           </div>
         </details>
+      </div>
+    </details>
+
+    <!-- 情报雷达站 -->
+    <details class="panel" id="radarPanel">
+      <summary>📡 情报雷达站</summary>
+      <div class="panel-body">
+        <div class="radar-mini">
+          <div><b id="radarCntRival">0</b><span>标杆同行</span></div>
+          <div><b id="radarCntIntel">0</b><span>情报</span></div>
+          <div><b id="radarCntLead">0</b><span>金主线索</span></div>
+        </div>
+        <button class="btn btn-primary btn-wide btn-sm" data-act="radar-open" data-tab="rivals">📡 打开情报雷达站</button>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <button class="btn btn-ghost btn-sm" style="flex:1" data-act="radar-open" data-tab="intel">📓 情报本</button>
+          <button class="btn btn-ghost btn-sm" style="flex:1" data-act="radar-open" data-tab="leads">🎯 线索</button>
+        </div>
+        <p class="small muted" style="margin:8px 0 0;line-height:1.7">
+          盯同行 → 抄爆款 → 从评论区捞客户。全部只存本机浏览器。
+        </p>
       </div>
     </details>
 
@@ -842,6 +912,30 @@
   </div>
 </div>
 
+<!-- ==================== 情报雷达站 ==================== -->
+<div class="modal hidden" id="radarModal">
+  <div class="modal-card radar-card">
+    <div class="modal-head">
+      <span style="font-size:18px">📡</span>
+      <div style="flex:1;min-width:0">
+        <h3 style="margin:0">情报雷达站</h3>
+        <div class="small muted" style="margin-top:2px">盯同行 · 抄爆款 · 捞金主 —— 全部只存在你这台设备</div>
+      </div>
+      <button class="x-btn" data-act="radar-close" title="关闭">✕</button>
+    </div>
+    <div class="radar-tabs" id="radarTabs"></div>
+    <div class="radar-body" id="radarBody">
+      <div class="radar-cols">
+        <div id="radarFormCol"></div>
+        <div id="radarListCol" style="min-width:0">
+          <div id="radarFilterBar"></div>
+          <div id="radarList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== 首次使用引导 ==================== -->
 <div class="modal hidden" id="onboardModal">
   <div class="modal-card">
@@ -1012,6 +1106,10 @@
     ['🔍 邮箱反查', 'https://snov.io/email-finder']
   ];
 
+  /* ---- 情报雷达站 ---- */
+  const INTEL_TYPES = ['新品上市', '爆款内容', '促销活动'];
+  const LEAD_PLATFORMS = ['Instagram', 'TikTok', 'Facebook', 'LinkedIn', 'YouTube', '独立站', '其他'];
+
   /* =========================================================
      1. 工具函数
      ========================================================= */
@@ -1106,6 +1204,7 @@
       risk: { dailyLimit: 50, domainLimit: 2, delayMin: 60, delayMax: 120, apiGap: 1 },
       table: { name: '', importedAt: '', rows: [] },
       logs: [],
+      radar: { rivals: [], intel: [], leads: [] },
       miao: { mood: 50, speech: '爸爸，戳戳妙妙的脸蛋呀~', streak: 0, quest: QUESTS[0], questDate: '' }
     };
   }
@@ -1171,7 +1270,13 @@
     draft: '',
     lastKeywords: '',
     histFilter: '__all__',
-    modalPwd: false
+    modalPwd: false,
+    radarTab: 'rivals',      // rivals | intel | leads
+    radarEdit: null,         // { kind, id }
+    radarType: '新品上市',
+    radarFRival: '__all__',
+    radarFType: '__all__',
+    radarFLead: 'all'
   };
 
   /* =========================================================
@@ -2335,6 +2440,666 @@
     paintHistory();
     paintAccounts();
     paintKeyState();
+    paintRadarMini();
+  }
+
+  /* =========================================================
+     8.5 情报雷达站（标杆同行 / 情报本 / 金主线索）
+     ========================================================= */
+  function uid(p) {
+    return (p || 'id') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function safeUrl(u) {
+    u = String(u || '').trim();
+    if (!u) return '';
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u.replace(/^\/+/, '');
+    try {
+      const x = new URL(u);
+      return (x.protocol === 'http:' || x.protocol === 'https:') ? x.href : '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function radarData() {
+    if (!state.radar || typeof state.radar !== 'object') state.radar = { rivals: [], intel: [], leads: [] };
+    ['rivals', 'intel', 'leads'].forEach(function (k) {
+      if (!Array.isArray(state.radar[k])) state.radar[k] = [];
+    });
+    return state.radar;
+  }
+
+  function findRival(id) {
+    return radarData().rivals.filter(function (r) { return r.id === id; })[0] || null;
+  }
+
+  function starStr(n) {
+    n = Math.max(1, Math.min(5, Number(n) || 3));
+    return '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n);
+  }
+
+  function hostOf(url) {
+    try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return url; }
+  }
+
+  function intelTypesUsed() {
+    const set = INTEL_TYPES.slice();
+    radarData().intel.forEach(function (i) {
+      const t = (i.type || '').trim();
+      if (t && set.indexOf(t) < 0) set.push(t);
+    });
+    return set;
+  }
+
+  function paintRadarMini() {
+    const d = radarData();
+    const put = function (id, v) {
+      const el = $('#' + id);
+      if (el) el.textContent = v;
+    };
+    put('radarCntRival', d.rivals.length);
+    put('radarCntIntel', d.intel.length);
+    put('radarCntLead', d.leads.filter(function (l) { return l.status !== 'done'; }).length);
+  }
+
+  function openRadar(tab) {
+    if (tab) ui.radarTab = tab;
+    if (['rivals', 'intel', 'leads'].indexOf(ui.radarTab) < 0) ui.radarTab = 'rivals';
+    ui.radarEdit = null;
+    paintRadar();
+    $('#radarModal').classList.remove('hidden');
+  }
+
+  function paintRadar() {
+    if (!$('#radarModal')) return;
+    paintRadarTabs();
+    paintRadarForm();
+    paintRadarFilter();
+    paintRadarList();
+    paintRadarMini();
+  }
+
+  function paintRadarTabs() {
+    const d = radarData();
+    const tabs = [
+      ['rivals', '📡 标杆同行矩阵', d.rivals.length],
+      ['intel', '📓 爆款情报本', d.intel.length],
+      ['leads', '🎯 金主线索捕手', d.leads.filter(function (l) { return l.status !== 'done'; }).length]
+    ];
+    $('#radarTabs').innerHTML = tabs.map(function (t) {
+      return '<button class="rtab' + (ui.radarTab === t[0] ? ' on' : '') + '" data-act="radar-tab" data-tab="' + t[0] + '">' +
+        t[1] + '<span class="rtab-n">' + t[2] + '</span></button>';
+    }).join('');
+  }
+
+  function editTarget(kind) {
+    const e = ui.radarEdit;
+    return e && e.kind === kind ? e.id : '';
+  }
+
+  function paintRadarForm() {
+    const col = $('#radarFormCol');
+    if (!col) return;
+    const d = radarData();
+
+    if (ui.radarTab === 'rivals') {
+      const rid = editTarget('rival');
+      const e = rid ? findRival(rid) : null;
+      let starOpts = '';
+      for (let s = 5; s >= 1; s--) {
+        starOpts += '<option value="' + s + '">' + starStr(s) + ' · ' + s + ' 星</option>';
+      }
+      col.innerHTML =
+        '<div class="rpanel">' +
+          '<h4>' + (e ? '✏️ 编辑标杆同行' : '➕ 添加大牛同行') + '</h4>' +
+          '<div class="field"><label class="lbl">标杆同行名称 *</label>' +
+            '<input id="rName" class="inp" placeholder="例如：Squishy Land" autocomplete="off"></div>' +
+          '<div class="field"><label class="lbl">社媒 / 独立站主页</label>' +
+            '<input id="rUrl" class="inp" placeholder="instagram.com/xxx 或独立站链接" autocomplete="off"></div>' +
+          '<div class="field"><label class="lbl">主打品类</label>' +
+            '<input id="rCategory" class="inp" placeholder="例如：慢回弹捏捏乐" autocomplete="off"></div>' +
+          '<div class="field"><label class="lbl">星级优先级</label>' +
+            '<select id="rStars" class="inp">' + starOpts + '</select></div>' +
+          '<div style="display:flex;gap:7px">' +
+            '<button class="btn btn-primary btn-sm" style="flex:1" data-act="rival-save">' + (e ? '💾 保存修改' : '📡 加入监控') + '</button>' +
+            (e ? '<button class="btn btn-ghost btn-sm" data-act="radar-cancel">取消</button>' : '') +
+          '</div>' +
+          '<p class="small muted" style="margin:9px 0 0;line-height:1.7">⭐ 星级越高越值得盯，建议 4~5 星留给直接对手。</p>' +
+        '</div>';
+      if (e) {
+        $('#rName').value = e.name || '';
+        $('#rUrl').value = e.url || '';
+        $('#rCategory').value = e.category || '';
+        $('#rStars').value = String(Math.max(1, Math.min(5, Number(e.stars) || 3)));
+      }
+      return;
+    }
+
+    if (ui.radarTab === 'intel') {
+      const iid = editTarget('intel');
+      const e = iid ? d.intel.filter(function (i) { return i.id === iid; })[0] : null;
+      const rivalOpts = ['<option value="">（未关联）</option>'].concat(
+        d.rivals.map(function (r) {
+          return '<option value="' + esc(r.id) + '">' + esc(r.name) + '</option>';
+        })
+      ).join('');
+      const typeChips = INTEL_TYPES.map(function (t) {
+        return '<button class="rchip' + (ui.radarType === t ? ' on' : '') + '" data-act="intel-type" data-type="' + esc(t) + '">' + esc(t) + '</button>';
+      }).join('');
+
+      col.innerHTML =
+        '<div class="rpanel">' +
+          '<h4>' + (e ? '✏️ 编辑情报' : '➕ 记录一条情报') + '</h4>' +
+          (d.rivals.length ? '' :
+            '<div class="note note-warn" style="font-size:11px;margin-bottom:9px;line-height:1.7">还没有添加标杆同行，建议先加一个，情报才能对上号。' +
+            '<button class="rmini-btn" data-act="radar-tab" data-tab="rivals" style="margin-left:5px">去添加</button></div>') +
+          '<div class="field"><label class="lbl">关联同行</label>' +
+            '<select id="iRival" class="inp">' + rivalOpts + '</select></div>' +
+          '<div class="field"><label class="lbl">发现日期</label>' +
+            '<input id="iDate" type="date" class="inp"></div>' +
+          '<div class="field"><label class="lbl">情报类型</label>' +
+            '<div class="rchip-bar" style="margin-bottom:6px">' + typeChips + '</div>' +
+            '<input id="iTypeCustom" class="inp" placeholder="自定义标签（可选），如：直播间玩法" autocomplete="off"></div>' +
+          '<div class="field"><label class="lbl">帖子链接</label>' +
+            '<input id="iLink" class="inp" placeholder="帖文 / 短视频 / 商品页链接" autocomplete="off"></div>' +
+          '<div class="field"><label class="lbl">复盘笔记 / 抄作业心得</label>' +
+            '<textarea id="iNote" class="inp" rows="5" placeholder="他这条为什么火？文案钩子、价格锚点、评论区怎么回…"></textarea></div>' +
+          '<div style="display:flex;gap:7px">' +
+            '<button class="btn btn-primary btn-sm" style="flex:1" data-act="intel-save">' + (e ? '💾 保存修改' : '📓 存入情报本') + '</button>' +
+            (e ? '<button class="btn btn-ghost btn-sm" data-act="radar-cancel">取消</button>' : '') +
+          '</div>' +
+        '</div>';
+
+      const sel = $('#iRival');
+      $('#iDate').value = (e && e.date) ? e.date : ymd();
+      if (e) {
+        if (e.rivalId && !$('#iRival').querySelector('option[value="' + e.rivalId.replace(/"/g, '') + '"]')) {
+          const o = document.createElement('option');
+          o.value = e.rivalId; o.textContent = (e.rivalName || '已删除的同行');
+          sel.appendChild(o);
+        }
+        sel.value = e.rivalId || '';
+        $('#iLink').value = e.link || '';
+        $('#iNote').value = e.note || '';
+        const known = INTEL_TYPES.indexOf(e.type) >= 0;
+        ui.radarType = known ? e.type : '';
+        if (!known && e.type) $('#iTypeCustom').value = e.type;
+        paintRadarTypeChips();
+      } else {
+        sel.value = d.rivals[0] ? d.rivals[0].id : '';
+      }
+      return;
+    }
+
+    /* 线索捕手 */
+    const lid = editTarget('lead');
+    const e = lid ? d.leads.filter(function (l) { return l.id === lid; })[0] : null;
+    const srcOpts = ['<option value="">（未知 / 其他）</option>'].concat(
+      d.rivals.map(function (r) {
+        return '<option value="' + esc(r.id) + '">' + esc(r.name) + '</option>';
+      })
+    ).join('');
+    const platOpts = LEAD_PLATFORMS.map(function (p) {
+      return '<option value="' + esc(p) + '">' + esc(p) + '</option>';
+    }).join('');
+
+    col.innerHTML =
+      '<div class="rpanel">' +
+        '<h4>' + (e ? '✏️ 编辑线索' : '➕ 抓一条金主线索') + '</h4>' +
+        '<div class="field"><label class="lbl">社媒平台</label>' +
+          '<select id="lPlatform" class="inp">' + platOpts + '</select></div>' +
+        '<div class="field"><label class="lbl">社媒名 / 账号 *</label>' +
+          '<input id="lAccount" class="inp" placeholder="@kawaii_mom 或主页链接" autocomplete="off"></div>' +
+        '<div class="field"><label class="lbl">需求关键词</label>' +
+          '<input id="lNeed" class="inp" placeholder="例如：问哪里能批发 / 求定制 / 要小批量" autocomplete="off"></div>' +
+        '<div class="field"><label class="lbl">来源同行</label>' +
+          '<select id="lSource" class="inp">' + srcOpts + '</select></div>' +
+        '<div class="field"><label class="lbl">邮箱（可选，填了能一键进发信名单）</label>' +
+          '<input id="lEmail" class="inp" placeholder="name@brand.com" autocomplete="off"></div>' +
+        '<div style="display:flex;gap:7px">' +
+          '<button class="btn btn-primary btn-sm" style="flex:1" data-act="lead-save">' + (e ? '💾 保存修改' : '🎯 存入线索池') + '</button>' +
+          (e ? '<button class="btn btn-ghost btn-sm" data-act="radar-cancel">取消</button>' : '') +
+        '</div>' +
+        '<p class="small muted" style="margin:9px 0 0;line-height:1.7">💡 评论区里问价格、问批发、问定制的，都是活的采购意向。</p>' +
+      '</div>';
+
+    if (e) {
+      if (e.platform && LEAD_PLATFORMS.indexOf(e.platform) < 0) {
+        const o = document.createElement('option');
+        o.value = e.platform; o.textContent = e.platform;
+        $('#lPlatform').appendChild(o);
+      }
+      $('#lPlatform').value = e.platform || 'Instagram';
+      $('#lAccount').value = e.account || '';
+      $('#lNeed').value = e.need || '';
+      $('#lEmail').value = e.email || '';
+      const s = $('#lSource');
+      if (e.rivalId && !s.querySelector('option[value="' + e.rivalId.replace(/"/g, '') + '"]')) {
+        const o = document.createElement('option');
+        o.value = e.rivalId; o.textContent = (e.rivalName || '已删除的同行');
+        s.appendChild(o);
+      }
+      s.value = e.rivalId || '';
+    } else {
+      $('#lPlatform').value = 'Instagram';
+      $('#lSource').value = d.rivals[0] ? d.rivals[0].id : '';
+    }
+  }
+
+  function paintRadarTypeChips() {
+    $$('#radarFormCol [data-act="intel-type"]').forEach(function (b) {
+      b.classList.toggle('on', b.getAttribute('data-type') === ui.radarType);
+    });
+  }
+
+  function paintRadarFilter() {
+    const bar = $('#radarFilterBar');
+    if (!bar) return;
+    const d = radarData();
+
+    if (ui.radarTab === 'rivals') {
+      bar.innerHTML =
+        '<div style="display:flex;gap:7px;align-items:center;margin-bottom:9px;flex-wrap:wrap">' +
+          '<input id="rSearch" class="inp" style="flex:1;min-width:140px" placeholder="搜标杆同行名称 / 品类…" value="' + esc(ui.radarQRival || '') + '">' +
+          '<span class="badge badge-soft">' + d.rivals.length + ' 个在监控</span>' +
+        '</div>';
+      return;
+    }
+
+    if (ui.radarTab === 'intel') {
+      const types = intelTypesUsed();
+      bar.innerHTML =
+        '<div style="display:flex;gap:6px;align-items:center;margin-bottom:9px;flex-wrap:wrap">' +
+          '<select id="iFilterRival" class="inp" style="flex:1;min-width:120px">' +
+            '<option value="__all__">全部同行</option>' +
+            d.rivals.map(function (r) {
+              return '<option value="' + esc(r.id) + '"' + (ui.radarFRival === r.id ? ' selected' : '') + '>' + esc(r.name) + '</option>';
+            }).join('') +
+          '</select>' +
+          '<select id="iFilterType" class="inp" style="flex:1;min-width:110px">' +
+            '<option value="__all__">全部类型</option>' +
+            types.map(function (t) {
+              return '<option value="' + esc(t) + '"' + (ui.radarFType === t ? ' selected' : '') + '>' + esc(t) + '</option>';
+            }).join('') +
+          '</select>' +
+        '</div>';
+      return;
+    }
+
+    bar.innerHTML =
+      '<div class="rchip-bar" style="margin-bottom:9px;align-items:center">' +
+        [['all', '全部'], ['new', '待跟进'], ['done', '已跟进']].map(function (x) {
+          return '<button class="rchip' + (ui.radarFLead === x[0] ? ' on' : '') + '" data-act="lead-filter" data-f="' + x[0] + '">' + x[1] + '</button>';
+        }).join('') +
+        '<span class="badge badge-soft" style="margin-left:auto">共 ' + d.leads.length + ' 条</span>' +
+      '</div>';
+  }
+
+  function paintRadarList() {
+    const box = $('#radarList');
+    if (!box) return;
+    const d = radarData();
+
+    /* ---- 标杆同行 ---- */
+    if (ui.radarTab === 'rivals') {
+      const q = String(ui.radarQRival || '').trim().toLowerCase();
+      const list = d.rivals.slice().sort(function (a, b) {
+        return (Number(b.stars) || 0) - (Number(a.stars) || 0) ||
+          String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+      }).filter(function (r) {
+        if (!q) return true;
+        return (r.name || '').toLowerCase().indexOf(q) >= 0 || (r.category || '').toLowerCase().indexOf(q) >= 0;
+      });
+
+      if (!d.rivals.length) {
+        box.innerHTML = '<div class="rempty">📡 雷达还没有目标<br>' +
+          '<span style="font-size:11px">在左边填一个同行名字，就能开始盯他了。<br>建议先加 3~5 个直接对手。</span></div>';
+        return;
+      }
+      if (!list.length) {
+        box.innerHTML = '<div class="rempty">没有匹配「' + esc(q) + '」的标杆同行</div>';
+        return;
+      }
+
+      box.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:8px">' +
+        list.map(function (r) {
+          const url = safeUrl(r.url);
+          const ic = d.intel.filter(function (i) { return i.rivalId === r.id; }).length;
+          const lc = d.leads.filter(function (l) { return l.rivalId === r.id; }).length;
+          return '<div class="rcard">' +
+            '<div class="rcard-top">' +
+              '<div class="rcard-name">' + esc(r.name) + '</div>' +
+              '<div class="stars" title="优先级 ' + (Number(r.stars) || 3) + ' 星">' + starStr(r.stars) + '</div>' +
+            '</div>' +
+            '<div class="rchips">' +
+              (r.category ? '<span class="tagx">🏷 ' + esc(r.category) + '</span>' : '<span class="tagx soft">未填品类</span>') +
+              '<span class="tagx soft">📓 ' + ic + '</span>' +
+              (lc ? '<span class="tagx soft">🎯 ' + lc + '</span>' : '') +
+            '</div>' +
+            (url ? '<div style="margin-top:7px"><a class="rlink" href="' + esc(url) + '" target="_blank" rel="noopener">🔗 ' + esc(hostOf(url)) + '</a></div>' : '') +
+            '<div class="ract">' +
+              '<button class="rmini-btn" data-act="intel-new" data-rival="' + esc(r.id) + '">📓 记情报</button>' +
+              '<button class="rmini-btn" data-act="lead-new" data-rival="' + esc(r.id) + '">🎯 捞线索</button>' +
+              '<button class="rmini-btn" data-act="rival-edit" data-id="' + esc(r.id) + '">✏️</button>' +
+              '<button class="rmini-btn danger" data-act="rival-del" data-id="' + esc(r.id) + '">🗑</button>' +
+            '</div>' +
+          '</div>';
+        }).join('') + '</div>';
+      return;
+    }
+
+    /* ---- 情报 ---- */
+    if (ui.radarTab === 'intel') {
+      let list = d.intel.slice().sort(function (a, b) {
+        return String(b.date || b.createdAt || '').localeCompare(String(a.date || a.createdAt || ''));
+      });
+      if (ui.radarFRival !== '__all__') {
+        list = list.filter(function (i) { return i.rivalId === ui.radarFRival; });
+      }
+      if (ui.radarFType !== '__all__') {
+        list = list.filter(function (i) { return (i.type || '') === ui.radarFType; });
+      }
+
+      if (!d.intel.length) {
+        box.innerHTML = '<div class="rempty">📓 情报本还是空的<br>' +
+          '<span style="font-size:11px">看到同行上新、爆帖、打折，就记一条。<br>重点是写下「他为什么有效」，那才是作业。</span></div>';
+        return;
+      }
+      if (!list.length) {
+        box.innerHTML = '<div class="rempty">这个筛选条件下还没有情报</div>';
+        return;
+      }
+
+      box.innerHTML = '<div class="rlist">' + list.map(function (i) {
+        const link = safeUrl(i.link);
+        const name = i.rivalName || (findRival(i.rivalId) ? findRival(i.rivalId).name : '未关联同行');
+        return '<div class="rcard">' +
+          '<div class="rcard-top">' +
+            '<div class="rcard-name">' + esc(name) + '</div>' +
+            '<span class="tagx type">' + esc(i.type || '未分类') + '</span>' +
+          '</div>' +
+          '<div class="rchips"><span class="tagx soft">📅 ' + esc(i.date || '—') + '</span></div>' +
+          (i.note ? '<p class="rnote">' + esc(i.note) + '</p>' : '<p class="rnote" style="color:var(--ink3)">（没写复盘，补一句也好）</p>') +
+          '<div class="ract">' +
+            (link ? '<a class="rlink" href="' + esc(link) + '" target="_blank" rel="noopener">🔗 看原帖</a>' : '') +
+            '<button class="rmini-btn" data-act="intel-copy" data-id="' + esc(i.id) + '">📋 复制</button>' +
+            '<button class="rmini-btn" data-act="intel-edit" data-id="' + esc(i.id) + '">✏️</button>' +
+            '<button class="rmini-btn danger" data-act="intel-del" data-id="' + esc(i.id) + '">🗑</button>' +
+          '</div>' +
+        '</div>';
+      }).join('') + '</div>';
+      return;
+    }
+
+    /* ---- 线索 ---- */
+    let leads = d.leads.slice().sort(function (a, b) {
+      return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+    });
+    if (ui.radarFLead === 'new') leads = leads.filter(function (l) { return l.status !== 'done'; });
+    if (ui.radarFLead === 'done') leads = leads.filter(function (l) { return l.status === 'done'; });
+
+    if (!d.leads.length) {
+      box.innerHTML = '<div class="rempty">🎯 线索池还是空的<br>' +
+        '<span style="font-size:11px">去同行评论区翻：问价格、问批发、问定制的，<br>把账号记下来，就是一条活线索。</span></div>';
+      return;
+    }
+    if (!leads.length) {
+      box.innerHTML = '<div class="rempty">这个状态下还没有线索</div>';
+      return;
+    }
+
+    box.innerHTML = '<div class="rlist">' + leads.map(function (l) {
+      const name = l.rivalName || (findRival(l.rivalId) ? findRival(l.rivalId).name : '未关联同行');
+      const hasMail = EMAIL_RE.test(String(l.email || '').trim());
+      return '<div class="rcard">' +
+        '<div class="rcard-top">' +
+          '<div class="rcard-name">' + esc(l.account || '（未填账号）') + '</div>' +
+          (l.status === 'done' ? '<span class="tagx done">✓ 已跟进</span>' : '<span class="tagx type">待跟进</span>') +
+        '</div>' +
+        '<div class="rchips">' +
+          '<span class="tagx soft">' + esc(l.platform || '其他') + '</span>' +
+          (l.need ? '<span class="tagx">🔎 ' + esc(l.need) + '</span>' : '') +
+          '<span class="tagx soft">来自 ' + esc(name) + '</span>' +
+          (hasMail ? '<span class="tagx soft">✉️ ' + esc(l.email) + '</span>' : '<span class="tagx soft" style="color:var(--ink3)">缺邮箱</span>') +
+        '</div>' +
+        '<div class="ract">' +
+          '<button class="rmini-btn" data-act="lead-to-client" data-id="' + esc(l.id) + '" style="' + (hasMail ? 'background:var(--mint);color:var(--brand);border-color:var(--brand-soft)' : '') + '">➕ 加入发信名单</button>' +
+          '<button class="rmini-btn" data-act="lead-check" data-id="' + esc(l.id) + '">🕵️ 去背调</button>' +
+          '<button class="rmini-btn" data-act="lead-copy" data-id="' + esc(l.id) + '">📋 复制</button>' +
+          '<button class="rmini-btn" data-act="lead-toggle" data-id="' + esc(l.id) + '">' + (l.status === 'done' ? '↩️ 撤销' : '✓ 已跟进') + '</button>' +
+          '<button class="rmini-btn" data-act="lead-edit" data-id="' + esc(l.id) + '">✏️</button>' +
+          '<button class="rmini-btn danger" data-act="lead-del" data-id="' + esc(l.id) + '">🗑</button>' +
+        '</div>' +
+      '</div>';
+    }).join('') + '</div>';
+  }
+
+  /* ---------------- 增删改 ---------------- */
+  async function saveRival() {
+    const name = ($('#rName') ? $('#rName').value : '').trim();
+    if (!name) { toast('先给这个标杆同行起个名字~', '✍️'); return; }
+    const rawUrl = ($('#rUrl') ? $('#rUrl').value : '').trim();
+    const category = ($('#rCategory') ? $('#rCategory').value : '').trim();
+    const stars = Math.max(1, Math.min(5, parseInt($('#rStars').value, 10) || 3));
+    const d = radarData();
+    const rid = editTarget('rival');
+    const url = rawUrl ? safeUrl(rawUrl) : '';
+    if (rawUrl && !url) { toast('主页链接看着不对，换成 https:// 开头的地址试试', '⚠️'); return; }
+    const dup = d.rivals.filter(function (r) {
+      return r.id !== rid && String(r.name || '').toLowerCase() === name.toLowerCase();
+    })[0];
+    if (dup) { toast('「' + name + '」已经在监控里了', '⚠️'); return; }
+
+    if (rid) {
+      const r = findRival(rid);
+      if (!r) { toast('这个标杆同行已经不在了', '⚠️'); ui.radarEdit = null; paintRadar(); return; }
+      r.name = name; r.url = url; r.category = category; r.stars = stars;
+      d.intel.forEach(function (i) { if (i.rivalId === rid) i.rivalName = name; });
+      d.leads.forEach(function (l) { if (l.rivalId === rid) l.rivalName = name; });
+    } else {
+      d.rivals.push({ id: uid('rv'), name: name, url: url, category: category, stars: stars, createdAt: nowStr() });
+    }
+    ui.radarEdit = null;
+    saveState(true);
+    paintRadar();
+    toast(rid ? '标杆同行已更新' : '已加入监控：' + name, '📡');
+  }
+
+  async function delRival(id) {
+    const r = findRival(id);
+    if (!r) return;
+    const ok = await confirmDialog('停止监控「' + esc(r.name) + '」？',
+      '只会移除这个标杆同行。它名下的情报和线索会保留（历史记录不丢）。', '移除');
+    if (!ok) return;
+    const d = radarData();
+    d.rivals = d.rivals.filter(function (x) { return x.id !== id; });
+    d.intel.forEach(function (i) { if (i.rivalId === id) i.rivalId = ''; });
+    d.leads.forEach(function (l) { if (l.rivalId === id) l.rivalId = ''; });
+    if (ui.radarEdit && ui.radarEdit.id === id) ui.radarEdit = null;
+    saveState(true);
+    paintRadar();
+    toast('已移除：' + r.name, '🗑️');
+  }
+
+  async function saveIntel() {
+    const d = radarData();
+    const rivalId = $('#iRival').value;
+    const date = $('#iDate').value || ymd();
+    const custom = $('#iTypeCustom').value.trim();
+    const type = custom || ui.radarType || INTEL_TYPES[0];
+    const link = $('#iLink').value.trim();
+    const note = $('#iNote').value.trim();
+    if (!note && !link) { toast('至少写一句复盘，或者贴上原帖链接', '✍️'); return; }
+    const url = link ? safeUrl(link) : '';
+    if (link && !url) { toast('帖子链接格式看着不对，检查一下', '⚠️'); return; }
+    const rivalName = findRival(rivalId) ? findRival(rivalId).name
+      : (d.intel.filter(function (i) { return i.id === editTarget('intel'); })[0] || {}).rivalName || '';
+
+    const iid = editTarget('intel');
+    if (iid) {
+      const it = d.intel.filter(function (i) { return i.id === iid; })[0];
+      if (!it) { ui.radarEdit = null; paintRadar(); toast('这条情报已经不在了', '⚠️'); return; }
+      it.rivalId = rivalId; it.rivalName = rivalName; it.date = date; it.type = type;
+      it.link = url; it.note = note;
+    } else {
+      d.intel.push({
+        id: uid('it'), rivalId: rivalId, rivalName: rivalName, date: date, type: type,
+        link: url, note: note, createdAt: nowStr()
+      });
+    }
+    ui.radarEdit = null;
+    saveState(true);
+    paintRadar();
+    toast(iid ? '情报已更新' : '已存入情报本', '📓');
+  }
+
+  async function delIntel(id) {
+    const d = radarData();
+    const it = d.intel.filter(function (i) { return i.id === id; })[0];
+    if (!it) return;
+    const ok = await confirmDialog('删掉这条情报？', '删除后无法恢复，建议先复制一份。', '删除');
+    if (!ok) return;
+    d.intel = d.intel.filter(function (i) { return i.id !== id; });
+    if (ui.radarEdit && ui.radarEdit.id === id) ui.radarEdit = null;
+    saveState(true);
+    paintRadar();
+    toast('情报已删除', '🗑️');
+  }
+
+  async function saveLead() {
+    const d = radarData();
+    const account = $('#lAccount').value.trim();
+    const platform = $('#lPlatform').value || '其他';
+    const need = $('#lNeed').value.trim();
+    const rivalId = $('#lSource').value;
+    const email = $('#lEmail').value.trim();
+    if (!account) { toast('先填一下对方的社媒名或账号~', '✍️'); return; }
+    if (email && !EMAIL_RE.test(email)) { toast('邮箱格式看着不对', '⚠️'); return; }
+    const rivalName = findRival(rivalId) ? findRival(rivalId).name : '';
+    const lid = editTarget('lead');
+    const dup = d.leads.filter(function (l) {
+      return l.id !== lid && String(l.account || '').toLowerCase() === account.toLowerCase();
+    })[0];
+    if (dup) { toast('「' + account + '」已经在线索池了', '⚠️'); return; }
+
+    if (lid) {
+      const l = d.leads.filter(function (x) { return x.id === lid; })[0];
+      if (!l) { ui.radarEdit = null; paintRadar(); toast('这条线索已经不在了', '⚠️'); return; }
+      l.account = account; l.platform = platform; l.need = need;
+      l.rivalId = rivalId; l.rivalName = rivalName; l.email = email;
+    } else {
+      d.leads.push({
+        id: uid('ld'), account: account, platform: platform, need: need,
+        rivalId: rivalId, rivalName: rivalName, email: email,
+        status: 'new', createdAt: nowStr()
+      });
+    }
+    ui.radarEdit = null;
+    saveState(true);
+    paintRadar();
+    toast(lid ? '线索已更新' : '线索已入库：' + account, '🎯');
+  }
+
+  async function delLead(id) {
+    const d = radarData();
+    const l = d.leads.filter(function (x) { return x.id === id; })[0];
+    if (!l) return;
+    const ok = await confirmDialog('删掉这条线索？', '只会从线索池移除，不影响已经加进发信名单的客户。', '删除');
+    if (!ok) return;
+    d.leads = d.leads.filter(function (x) { return x.id !== id; });
+    if (ui.radarEdit && ui.radarEdit.id === id) ui.radarEdit = null;
+    saveState(true);
+    paintRadar();
+    toast('线索已删除', '🗑️');
+  }
+
+  function startRadarEdit(kind, id) {
+    ui.radarEdit = { kind: kind, id: id };
+    paintRadarForm();
+    const col = $('#radarFormCol');
+    if (col && col.scrollIntoView) col.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  /* 线索 → 客户开发（发信名单） */
+  function leadToClient(id) {
+    const d = radarData();
+    const l = d.leads.filter(function (x) { return x.id === id; })[0];
+    if (!l) return;
+    const email = String(l.email || '').trim();
+    if (!EMAIL_RE.test(email)) {
+      startRadarEdit('lead', id);
+      toast('这个线索还没有邮箱，补上就能进发信名单', '✉️');
+      setTimeout(function () {
+        const el = $('#lEmail');
+        if (el) { el.focus(); el.style.borderColor = '#C0392B'; el.style.boxShadow = '0 0 0 3px rgba(192,57,43,.12)'; }
+      }, 60);
+      return;
+    }
+    const exists = state.table.rows.filter(function (r) {
+      return String(r.email || '').toLowerCase() === email.toLowerCase();
+    })[0];
+    if (exists) {
+      toast('这个邮箱已经在发信名单里了（状态：' + (exists.status || '—') + '）', '📋');
+      return;
+    }
+    if (!state.table.name) { state.table.name = '雷达站线索'; state.table.importedAt = nowStr(); }
+    state.table.rows.push({
+      company: l.account || email,
+      contact: l.account || '',
+      email: email,
+      status: '待发送',
+      time: '',
+      extra: {
+        '来源': '情报雷达站 · ' + (l.rivalName || '未知同行'),
+        '需求关键词': l.need || '',
+        '社媒': (l.platform || '') + ' ' + (l.account || '')
+      }
+    });
+    l.status = 'done';
+    saveState(true);
+    paintAll();
+    paintRadar();
+    toast('已加入发信名单：' + email, '✅');
+  }
+
+  function leadCheck(id) {
+    const d = radarData();
+    const l = d.leads.filter(function (x) { return x.id === id; })[0];
+    if (!l) return;
+    const acc = String(l.account || '').replace(/^@/, '');
+    const q = '"' + acc + '"' + (l.need ? ' ' + l.need : '') + ' (site:instagram.com OR site:linkedin.com OR site:facebook.com)';
+    window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener');
+  }
+
+  async function leadCopy(id) {
+    const d = radarData();
+    const l = d.leads.filter(function (x) { return x.id === id; })[0];
+    if (!l) return;
+    const lines = [
+      '🎯 金主线索',
+      '社媒：' + (l.account || '') + (l.platform ? '（' + l.platform + '）' : ''),
+      '需求关键词：' + (l.need || '—'),
+      '来源同行：' + (l.rivalName || '未关联'),
+      '邮箱：' + (l.email || '待补'),
+      '记录时间：' + (l.createdAt || '')
+    ];
+    const ok = await copyText(lines.join('\n'));
+    toast(ok ? '线索卡已复制' : '复制失败，请手动选择', ok ? '📋' : '⚠️');
+  }
+
+  function intelCopy(id) {
+    const d = radarData();
+    const it = d.intel.filter(function (i) { return i.id === id; })[0];
+    if (!it) return;
+    const txt = [
+      '📓 情报：' + (it.type || '未分类') + ' · ' + (it.date || ''),
+      '同行：' + (it.rivalName || '未关联'),
+      it.link ? '原帖：' + it.link : '',
+      '',
+      it.note || ''
+    ].filter(Boolean).join('\n');
+    copyText(txt).then(function (ok) { toast(ok ? '情报已复制' : '复制失败，请手动选择', ok ? '📋' : '⚠️'); });
   }
 
   /* =========================================================
@@ -2652,6 +3417,77 @@
         break;
       }
 
+      /* --- 情报雷达站 --- */
+      case 'radar-open': openRadar(t.getAttribute('data-tab') || 'rivals'); break;
+      case 'radar-close': $('#radarModal').classList.add('hidden'); break;
+      case 'radar-tab': {
+        ui.radarTab = t.getAttribute('data-tab');
+        ui.radarEdit = null;
+        paintRadar();
+        break;
+      }
+      case 'radar-cancel': {
+        ui.radarEdit = null;
+        paintRadarForm();
+        break;
+      }
+      case 'rival-save': saveRival(); break;
+      case 'rival-edit': startRadarEdit('rival', t.getAttribute('data-id')); break;
+      case 'rival-del': delRival(t.getAttribute('data-id')); break;
+      case 'intel-new': {
+        ui.radarTab = 'intel';
+        ui.radarEdit = null;
+        paintRadar();
+        const rid = t.getAttribute('data-rival');
+        const sel = $('#iRival');
+        if (sel && rid) sel.value = rid;
+        const note = $('#iNote');
+        if (note) note.focus();
+        break;
+      }
+      case 'intel-type': {
+        ui.radarType = t.getAttribute('data-type');
+        paintRadarTypeChips();
+        break;
+      }
+      case 'intel-save': saveIntel(); break;
+      case 'intel-edit': startRadarEdit('intel', t.getAttribute('data-id')); break;
+      case 'intel-del': delIntel(t.getAttribute('data-id')); break;
+      case 'intel-copy': intelCopy(t.getAttribute('data-id')); break;
+      case 'lead-new': {
+        ui.radarTab = 'leads';
+        ui.radarEdit = null;
+        paintRadar();
+        const rid = t.getAttribute('data-rival');
+        const src = $('#lSource');
+        if (src && rid) src.value = rid;
+        const acc = $('#lAccount');
+        if (acc) acc.focus();
+        break;
+      }
+      case 'lead-filter': {
+        ui.radarFLead = t.getAttribute('data-f') || 'all';
+        paintRadarFilter();
+        paintRadarList();
+        break;
+      }
+      case 'lead-save': saveLead(); break;
+      case 'lead-edit': startRadarEdit('lead', t.getAttribute('data-id')); break;
+      case 'lead-del': delLead(t.getAttribute('data-id')); break;
+      case 'lead-to-client': leadToClient(t.getAttribute('data-id')); break;
+      case 'lead-check': leadCheck(t.getAttribute('data-id')); break;
+      case 'lead-copy': leadCopy(t.getAttribute('data-id')); break;
+      case 'lead-toggle': {
+        const d = radarData();
+        const l = d.leads.filter(function (x) { return x.id === t.getAttribute('data-id'); })[0];
+        if (!l) break;
+        l.status = l.status === 'done' ? 'new' : 'done';
+        saveState(true);
+        paintRadar();
+        toast(l.status === 'done' ? '已标记跟进 ✓' : '已放回待跟进', '🎯');
+        break;
+      }
+
       /* --- 表格 --- */
       case 'pick-file': $('#fileInput').click(); break;
       case 'prev-page': ui.page = Math.max(1, ui.page - 1); paintTable(); break;
@@ -2783,6 +3619,19 @@
       ui.histFilter = this.value; paintHistory();
     });
 
+    /* 雷达站：筛选与搜索（只重绘列表，不动左边表单里正在写的内容） */
+    const rbody = $('#radarBody');
+    if (rbody) {
+      rbody.addEventListener('change', function (e) {
+        const id = e.target.id;
+        if (id === 'iFilterRival') { ui.radarFRival = e.target.value; paintRadarList(); }
+        else if (id === 'iFilterType') { ui.radarFType = e.target.value; paintRadarList(); }
+      });
+      rbody.addEventListener('input', function (e) {
+        if (e.target.id === 'rSearch') { ui.radarQRival = e.target.value; paintRadarList(); }
+      });
+    }
+
     $('#accSelect').addEventListener('change', function () {
       const v = this.value;
       if (v === '__new__') {
@@ -2830,13 +3679,13 @@
     });
     $$('.modal').forEach(m => {
       m.addEventListener('click', e => {
-        if (e.target === m && m.id !== 'confirmModal' && m.id !== 'onboardModal') m.classList.add('hidden');
+        if (e.target === m && m.id !== 'confirmModal' && m.id !== 'onboardModal' && m.id !== 'radarModal') m.classList.add('hidden');
       });
     });
 
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
-        ['#apiModal', '#failModal', '#confirmModal'].forEach(s => {
+        ['#apiModal', '#failModal', '#confirmModal', '#radarModal'].forEach(s => {
           const el = $(s);
           if (el && !el.classList.contains('hidden')) {
             el.classList.add('hidden');
@@ -2862,6 +3711,7 @@
   function boot() {
     state = loadState();
     state.miao.mood = Math.max(0, Math.min(100, Number(state.miao.mood) || 50));
+    radarData();
 
     if (!state.activeAccount || !state.accounts[state.activeAccount]) {
       const first = Object.keys(state.accounts)[0];
