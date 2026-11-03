@@ -118,6 +118,8 @@
   .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
   .btn-primary{background:var(--brand);color:#fff;box-shadow:0 4px 12px -6px rgba(46,125,79,.9)}
   .btn-primary:hover:not(:disabled){background:var(--brand-dark)}
+  .btn.active{background:var(--brand);color:#fff;border-color:var(--brand);box-shadow:0 4px 12px -6px rgba(46,125,79,.9)}
+  .btn.active:hover{background:var(--brand-dark)}
   .btn-ghost{background:#fff;border-color:var(--line);color:var(--ink2)}
   .btn-ghost:hover:not(:disabled){background:var(--mint);border-color:var(--brand-soft);color:var(--brand)}
   .btn-soft{background:var(--mint);color:var(--brand);border-color:var(--line)}
@@ -304,17 +306,17 @@
       </div>
     </div>
 
-    <!-- API Key 状态卡 -->
+    <!-- 发送通道状态卡 -->
     <div class="card" style="padding:12px;margin-bottom:12px;background:linear-gradient(135deg,#F2FAF5,#fff)">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
-        <span style="font-size:15px">🔑</span>
-        <div style="flex:1">
-          <div style="font-size:12.5px;font-weight:800">API Key 设置</div>
-          <div style="font-size:10.5px;color:var(--ink3);margin-top:2px" id="keyStateText">未配置 · 只存本机浏览器</div>
+        <span style="font-size:15px">☁️</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12.5px;font-weight:800">发送通道与 API</div>
+          <div style="font-size:10.5px;color:var(--ink3);margin-top:2px" id="keyStateText">人工发送模式 · 点这里配置</div>
         </div>
-        <span id="keyDot" class="dot" style="color:#C7D2CB"></span>
+        <span id="keyDot" class="dot" style="color:#E65100"></span>
       </div>
-      <button class="btn btn-soft btn-wide btn-sm" data-act="open-api">配置密钥 / 直发接口</button>
+      <button class="btn btn-soft btn-wide btn-sm" data-act="open-api">配置 Resend / AI 密钥</button>
     </div>
 
     <!-- 外贸百宝箱 -->
@@ -445,15 +447,22 @@
         </div>
         <div class="field">
           <label class="lbl">发件人显示名</label>
-          <input id="accName" class="inp" placeholder="Sales" autocomplete="off">
+          <input id="accName" class="inp" placeholder="Rowan from Fun Toys" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="lbl">回信地址 reply-to（可选）</label>
+          <input id="accReplyTo" class="inp" placeholder="留空则默认用发件邮箱" autocomplete="off">
         </div>
         <div style="display:flex;gap:7px">
           <button class="btn btn-primary btn-sm" style="flex:1" data-act="save-acc">💾 保存账号</button>
           <button class="btn btn-ghost btn-sm" style="flex:1" data-act="del-acc">🗑️ 删除</button>
         </div>
-        <div class="note note-info" style="margin-top:10px;font-size:11px">
-          浏览器出于安全限制<b>无法直连 SMTP 服务器</b>，所以这里不需要填授权码、服务器和端口。<br>
-          这个邮箱只用来：区分统计数据、决定「战绩本」筛选、生成邮件签名。
+        <div class="resultbox" id="accDomainHint" style="margin-top:10px;font-size:11px;background:#FFFDF7;border-color:#F3E6CC;color:#8A5A16">
+          📮 云端发送时，这个邮箱就是邮件的 <b>From</b>，必须在 Resend 里验证过对应域名才能发出去。
+        </div>
+        <div class="note note-info" style="margin-top:8px;font-size:11px">
+          浏览器无法直连 SMTP，所以这里不需要服务器/授权码。<br>
+          这个邮箱用来：云端发信的 From、区分统计数据、战绩本筛选、邮件签名。
         </div>
       </div>
     </details>
@@ -513,14 +522,19 @@
           <input id="domainLimit" type="number" min="1" step="1" class="inp">
         </div>
         <div class="field">
-          <label class="lbl">随机延迟 (秒)</label>
+          <label class="lbl">随机延迟 (秒) · 仅人工发送模式</label>
           <div style="display:flex;align-items:center;gap:7px">
             <input id="delayMin" type="number" min="0" step="1" class="inp">
             <span class="muted">~</span>
             <input id="delayMax" type="number" min="0" step="1" class="inp">
           </div>
+          <p class="small muted" style="margin:5px 0 0">人工发信时建议 60~120 秒，模拟真人节奏，别把邮箱打废。</p>
         </div>
-        <p class="small muted" style="margin:0">建议保持 60~120 秒，模拟真人节奏，别把邮箱打废。</p>
+        <div class="field" style="margin-bottom:0">
+          <label class="lbl">云端 API 发送间隔 (秒)</label>
+          <input id="apiGap" type="number" min="1" step="1" class="inp">
+          <p class="small muted" style="margin:5px 0 0">云端发送时生效。Resend 免费版限速约 2 封/秒，建议 1~2 秒，既快又不撞 429。</p>
+        </div>
       </div>
     </details>
 
@@ -697,19 +711,103 @@
   </main>
 </div>
 
-<!-- ==================== API Key 弹窗 ==================== -->
+<!-- ==================== 发送通道与 API 设置 ==================== -->
 <div class="modal hidden" id="apiModal">
-  <div class="modal-card">
+  <div class="modal-card" style="max-width:560px">
     <div class="modal-head">
-      <span style="font-size:18px">🔑</span>
-      <h3>API 密钥设置</h3>
+      <span style="font-size:18px">⚙️</span>
+      <h3>发送通道与 API 设置</h3>
       <button class="x-btn" data-act="close-api">✕</button>
     </div>
     <div class="modal-body">
       <div class="note note-info" style="margin-bottom:14px">
-        密钥只保存在你<b>本机浏览器</b>的 localStorage 里，不会写进源码、不会上传、不会被推上 GitHub。
+        所有密钥只保存在你<b>本机浏览器</b>的 localStorage 里 —— 不写进源码、不上传、不会被推上 GitHub。
         换电脑或清缓存后需要重新填一次。
       </div>
+
+      <!-- ---------- 云端发信通道 ---------- -->
+      <div style="font-size:12.5px;font-weight:800;margin-bottom:7px">📮 云端发信通道</div>
+      <div style="display:flex;gap:7px;margin-bottom:12px">
+        <button class="btn btn-ghost btn-sm" data-act="set-provider" data-provider="resend" id="provResend" style="flex:1">☁️ Resend（推荐）</button>
+        <button class="btn btn-ghost btn-sm" data-act="set-provider" data-provider="webhook" id="provHook" style="flex:1">🔗 自定义 Webhook</button>
+      </div>
+
+      <div id="resendBox">
+        <div class="field">
+          <label class="lbl">Resend API Key</label>
+          <div style="display:flex;gap:6px">
+            <input id="resendKeyInput" class="inp" type="password" placeholder="re_xxxxxxxxxxxx" autocomplete="off" spellcheck="false">
+            <button class="btn btn-ghost btn-sm" data-act="toggle-resend" style="flex:0 0 auto">👁</button>
+          </div>
+          <p class="small muted" style="margin:5px 0 0">
+            去 resend.com → API Keys 创建。建议权限只勾 <b>Sending access</b> 并限定到你的发信域名 ——
+            这样即使 Key 泄露，别人也只能发信，看不到你的账号和联系人。
+          </p>
+        </div>
+
+        <div class="field">
+          <label class="lbl">发送端点</label>
+          <input id="resendEndpointInput" class="inp" placeholder="https://api.resend.com/emails" autocomplete="off">
+          <p class="small muted" style="margin:5px 0 0">
+            默认官方端点。若被浏览器 CORS 拦截，把下面的中转地址填到这里即可。
+          </p>
+        </div>
+
+        <div class="field">
+          <label class="lbl">当前发件人（取自左侧「⚙️ 发件身份」）</label>
+          <div class="resultbox" id="fromPreview" style="margin-top:0;font-family:ui-monospace,Consolas,monospace;font-size:11.5px">—</div>
+        </div>
+
+        <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" data-act="test-send">📨 发一封测试邮件</button>
+          <span class="small" id="sendState"></span>
+        </div>
+
+        <div class="note note-warn" style="margin-top:11px;font-size:11.5px;line-height:1.75">
+          ⚠️ Resend 要求<b>发件域名已验证</b>（DNS 加 SPF / DKIM），否则会报 403 或 422。
+          <a href="https://resend.com/domains" target="_blank" rel="noopener">去验证域名 →</a><br>
+          暂时没域名：可把发件邮箱改成 <code style="font-size:10.5px">onboarding@resend.dev</code> 先跑通，但它只能发到你注册 Resend 的那个邮箱。
+        </div>
+
+        <details class="sub" style="margin-top:10px;background:#FFFDF7;border-color:#F3E6CC">
+          <summary style="color:#8A5A16">🧩 直连被 CORS 拦住？用这个 15 行中转</summary>
+          <div class="panel-body">
+            <p class="small" style="margin:0 0 8px;line-height:1.75;color:var(--ink2)">
+              Resend 官方接口<b>不返回 CORS 响应头</b>，浏览器的 fetch 会被同源策略直接拦下 —— 这是浏览器的硬规定，不是本页面的问题。
+              解法：把下面代码粘到
+              <a href="https://dash.cloudflare.com/?to=/:account/workers" target="_blank" rel="noopener">Cloudflare Workers</a>
+              新建一个 Worker 并部署，再把生成的网址填进上面的「发送端点」。<br>
+              它只做<b>原样转发</b>：Key 依然只在你浏览器里，Worker 不存任何密钥，所以代码可以放心公开。
+            </p>
+            <pre class="codebox" id="workerCode" style="max-height:180px;overflow:auto;font-size:10.5px"></pre>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">
+              <button class="btn btn-ghost btn-sm" data-act="copy-worker">📋 复制 Worker 代码</button>
+              <a class="btn btn-soft btn-sm" href="https://dash.cloudflare.com/?to=/:account/workers" target="_blank" rel="noopener" style="text-decoration:none">打开 Cloudflare →</a>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div id="hookBox" class="hidden">
+        <p class="small" style="margin:0 0 9px;line-height:1.75;color:var(--ink2)">
+          已有自己的发信服务 / 想接别的邮件 API，就填一个接收 JSON 的地址：
+          <code style="font-size:10.5px;background:#F2F5F3;padding:1px 4px;border-radius:4px">{to, subject, body, from, fromName, company, contact}</code>，
+          返回 2xx 视为成功。
+        </p>
+        <div class="field">
+          <label class="lbl">Webhook 地址</label>
+          <input id="hookUrl" class="inp" placeholder="https://your-worker.workers.dev/send" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="lbl">Bearer Token（可选）</label>
+          <input id="hookToken" class="inp" type="password" placeholder="留空则不发送 Authorization" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ---------- AI ---------- -->
+      <div style="font-size:12.5px;font-weight:800;margin-bottom:7px">🤖 AI 助手（DeepSeek）</div>
 
       <div class="field">
         <label class="lbl">DeepSeek API Key</label>
@@ -717,7 +815,7 @@
           <input id="apiKeyInput" class="inp" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
           <button class="btn btn-ghost btn-sm" data-act="toggle-pwd" style="flex:0 0 auto">👁</button>
         </div>
-        <p class="small muted" style="margin:5px 0 0">去 platform.deepseek.com → API keys 创建，形如 sk-xxxxxxxx。只用于「AI 智能词库」和「AI 写邮件」。</p>
+        <p class="small muted" style="margin:5px 0 0">去 platform.deepseek.com → API keys 创建。只用于「AI 智能词库」和「AI 写邮件」。</p>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -732,35 +830,10 @@
       </div>
 
       <div style="display:flex;gap:7px;align-items:center">
-        <button class="btn btn-primary btn-sm" data-act="test-api">🔌 测试连接</button>
-        <button class="btn btn-ghost btn-sm" data-act="clear-key">🧹 清除密钥</button>
+        <button class="btn btn-ghost btn-sm" data-act="test-api">🔌 测试连接</button>
+        <button class="btn btn-ghost btn-sm" data-act="clear-key">🧹 清除 AI 密钥</button>
         <span class="small" id="apiState" style="margin-left:auto"></span>
       </div>
-
-      <div class="divider"></div>
-
-      <details class="sub" style="background:#FFFDF7;border-color:#F3E6CC">
-        <summary style="color:#8A5A16">⚡ 高级：直发接口（可选，实现自动连发）</summary>
-        <div class="panel-body">
-          <p class="small" style="margin:0 0 9px;line-height:1.7;color:var(--ink2)">
-            浏览器不能连 SMTP，但可以 POST 到<b>你自己的一个地址</b>。填了它，「发信控制」里就会多出「立即直发」和自动连发能力。<br>
-            你的接口会收到 JSON：<code style="font-size:10.5px;background:#F2F5F3;padding:1px 4px;border-radius:4px">{to, subject, body, from, fromName, company, contact}</code>，
-            返回 2xx 即视为成功。可以用 Cloudflare Worker、Vercel Function、Make/Zapier Webhook 转发到你的 SMTP。
-          </p>
-          <div class="field">
-            <label class="lbl">Webhook 地址</label>
-            <input id="hookUrl" class="inp" placeholder="https://your-worker.workers.dev/send" autocomplete="off">
-          </div>
-          <div class="field">
-            <label class="lbl">Bearer Token（可选）</label>
-            <input id="hookToken" class="inp" type="password" placeholder="留空则不发送 Authorization" autocomplete="off">
-          </div>
-          <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer">
-            <input type="checkbox" id="useHook" style="width:15px;height:15px;accent-color:#2E7D4F">
-            优先使用直发接口（每封自动 POST，失败自动转人工）
-          </label>
-        </div>
-      </details>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost btn-sm" data-act="close-api">取消</button>
@@ -779,23 +852,24 @@
     <div class="modal-body">
       <p style="margin:0 0 14px;font-size:13px;line-height:1.8;color:var(--ink2)">
         爸爸，这是一个<b>纯网页版</b>的奶粉钱作战台 —— 没有后端、没有数据库，打开就能用。
+        配好 Resend 之后，点一下就能让云端把邮件批量发出去。
       </p>
       <div style="display:flex;flex-direction:column;gap:11px">
         <div style="display:flex;gap:10px;align-items:flex-start">
           <div style="flex:0 0 24px;height:24px;border-radius:8px;background:var(--mint);color:var(--brand);display:grid;place-items:center;font-size:12px;font-weight:900">1</div>
-          <div style="font-size:12.5px;line-height:1.7"><b>配置发件邮箱</b><br><span class="muted">左侧「⚙️ 发件身份」，只填邮箱和显示名，用于统计和签名。</span></div>
+          <div style="font-size:12.5px;line-height:1.7"><b>绑定发件身份</b><br><span class="muted">左侧「⚙️ 发件身份」填你自己的邮箱和显示名 —— 这是客户看到的 From，域名需在 Resend 验证过。</span></div>
         </div>
         <div style="display:flex;gap:10px;align-items:flex-start">
           <div style="flex:0 0 24px;height:24px;border-radius:8px;background:var(--mint);color:var(--brand);display:grid;place-items:center;font-size:12px;font-weight:900">2</div>
-          <div style="font-size:12.5px;line-height:1.7"><b>传上今天的名单</b><br><span class="muted">支持 .xlsx / .xls / .csv，表头需要「公司名称 / 联系人名称 / 联系人邮箱」。</span></div>
+          <div style="font-size:12.5px;line-height:1.7"><b>填 Resend Key</b><br><span class="muted">「☁️ 发送通道与 API」里粘贴 re_ 开头的 Key，只存在你本机浏览器，然后点「发一封测试邮件」验证通路。</span></div>
         </div>
         <div style="display:flex;gap:10px;align-items:flex-start">
           <div style="flex:0 0 24px;height:24px;border-radius:8px;background:var(--mint);color:var(--brand);display:grid;place-items:center;font-size:12px;font-weight:900">3</div>
-          <div style="font-size:12.5px;line-height:1.7"><b>逐封发出去</b><br><span class="muted">妙妙会把每封信准备好，你点「打开邮箱客户端」发送，回来点一下「已发送」即可。进度、战绩、奶瓶都会自动记账。</span></div>
+          <div style="font-size:12.5px;line-height:1.7"><b>传名单，一键云端发信</b><br><span class="muted">支持 .xlsx / .xls / .csv，表头需含「公司名称 / 联系人名称 / 联系人邮箱」。点一下，妙妙按节奏自动发完并逐封记账。</span></div>
         </div>
         <div style="display:flex;gap:10px;align-items:flex-start">
           <div style="flex:0 0 24px;height:24px;border-radius:8px;background:#FFF3E0;color:#E65100;display:grid;place-items:center;font-size:12px;font-weight:900">4</div>
-          <div style="font-size:12.5px;line-height:1.7"><b>（可选）配 API Key</b><br><span class="muted">想要 AI 帮你写开发信，再填自己的 DeepSeek Key，只存本地。</span></div>
+          <div style="font-size:12.5px;line-height:1.7"><b>（可选）DeepSeek Key</b><br><span class="muted">想要 AI 帮你生成开发信和热搜词，再填一个 DeepSeek Key，同样只存本地。</span></div>
         </div>
       </div>
       <div class="note note-warn" style="margin-top:14px;font-size:11.5px">
@@ -1021,12 +1095,15 @@
       version: 1,
       settings: {
         apiKey: '', apiBase: 'https://api.deepseek.com', model: 'deepseek-chat',
-        hookUrl: '', hookToken: '', useHook: false, onboarded: false
+        sendProvider: 'resend',
+        resendKey: '',
+        resendEndpoint: 'https://api.resend.com/emails',
+        hookUrl: '', hookToken: '', onboarded: false
       },
       accounts: {},
       activeAccount: '',
       template: { subject: DEFAULT_SUBJECT, body: DEFAULT_BODY },
-      risk: { dailyLimit: 50, domainLimit: 2, delayMin: 60, delayMax: 120 },
+      risk: { dailyLimit: 50, domainLimit: 2, delayMin: 60, delayMax: 120, apiGap: 1 },
       table: { name: '', importedAt: '', rows: [] },
       logs: [],
       miao: { mood: 50, speech: '爸爸，戳戳妙妙的脸蛋呀~', streak: 0, quest: QUESTS[0], questDate: '' }
@@ -1084,6 +1161,7 @@
     countdown: 0,
     ready: false,
     timer: null,
+    inflight: false,
     flash: null,          // 'success' | 'fail' | null
     newBottle: -1,
     page: 1,
@@ -1183,9 +1261,58 @@
     return state.miao.quest;
   }
 
-  function autoMode() {
-    return !!(state.settings.useHook && state.settings.hookUrl);
+  const MODE_LABEL = { resend: '☁️ Resend 云端', webhook: '🔗 自定义接口', manual: '📨 邮箱客户端' };
+
+  function sendMode() {
+    const p = state.settings.sendProvider || 'resend';
+    if (p === 'webhook') return (state.settings.hookUrl || '').trim() ? 'webhook' : 'manual';
+    return (state.settings.resendKey || '').trim() ? 'resend' : 'manual';
   }
+
+  function autoMode() {
+    return sendMode() !== 'manual';
+  }
+
+  // Resend 的 CORS 中转代码：只做原样转发，不存任何密钥
+  const WORKER_CODE = [
+    '// 给妙妙赚NeiNei · Resend CORS 中转（Cloudflare Worker）',
+    '// 部署：dash.cloudflare.com → Workers & Pages → 创建 Worker → 粘贴 → 部署',
+    '// 然后把 https://xxx.workers.dev 填进页面的「发送端点」',
+    "const ALLOW_ORIGIN = '*'; // 建议改成你的站点，如 'https://你的用户名.github.io'",
+    '',
+    'export default {',
+    '  async fetch(request) {',
+    '    const cors = {',
+    "      'Access-Control-Allow-Origin': ALLOW_ORIGIN,",
+    "      'Access-Control-Allow-Methods': 'POST, OPTIONS',",
+    "      'Access-Control-Allow-Headers': 'authorization, content-type',",
+    "      'Access-Control-Max-Age': '86400'",
+    '    };',
+    '',
+    "    if (request.method === 'OPTIONS') {",
+    '      return new Response(null, { status: 204, headers: cors });',
+    '    }',
+    "    if (request.method !== 'POST') {",
+    "      return new Response('Method Not Allowed', { status: 405, headers: cors });",
+    '    }',
+    '',
+    '    // 原样转发：Key 由浏览器带过来，本 Worker 不保存任何密钥',
+    '    const body = await request.text();',
+    "    const auth = request.headers.get('authorization') || '';",
+    "    const upstream = await fetch('https://api.resend.com/emails', {",
+    "      method: 'POST',",
+    "      headers: { Authorization: auth, 'Content-Type': 'application/json' },",
+    '      body: body',
+    '    });',
+    '',
+    '    return new Response(await upstream.text(), {',
+    '      status: upstream.status,',
+    "      headers: Object.assign({}, cors, { 'Content-Type': 'application/json' })",
+    '    });',
+    '  }',
+    '};',
+    ''
+  ].join('\n');
 
   /* =========================================================
      4. 妙妙横幅
@@ -1471,21 +1598,37 @@
       const pend = countBy(r => r.status === '待发送');
       const fail = countBy(r => r.status === '发送失败');
       const rows = state.table.rows.length;
+      const mode = sendMode();
+      const isApi = mode !== 'manual';
+
+      const modeBox = isApi
+        ? '<div class="note note-info" style="margin-bottom:10px;font-size:11.5px;line-height:1.6">' +
+            '<b>' + MODE_LABEL[mode] + '</b> · 从 <b>' + esc(state.activeAccount) + '</b> 发出<br>' +
+            '<span style="opacity:.8">点一下，妙妙自动排队发完，每封都会单独记账。</span>' +
+          '</div>'
+        : '<div class="note note-warn" style="margin-bottom:10px;font-size:11.5px;line-height:1.6">' +
+            '尚未配置云端发信，当前是<b>人工模式</b>（自己点开邮箱发）。<br>' +
+            '<span style="opacity:.85">想让妙妙自动发完，去「⚙️ 发送通道」填一个 Resend Key。</span>' +
+          '</div>';
+
       box.innerHTML =
         '<h3 class="sec-title">🚀 发信控制</h3>' +
-        '<div class="note note-info" style="margin-bottom:10px;font-size:11.5px">' +
+        '<div class="note note-info" style="margin-bottom:8px;font-size:11.5px">' +
           '今日已发 <b>' + st.today + '</b> / 上限 <b>' + state.risk.dailyLimit + '</b> 封' +
         '</div>' +
+        modeBox +
         '<button class="btn btn-primary btn-wide" data-act="begin"' + (pend > 0 && rows ? '' : ' disabled') + '>' +
-          '🚀 一键启动批量发信' + (pend ? '（' + pend + ' 封待发）' : '') +
+          (isApi ? '☁️ 一键云端批量发信' : '🚀 一键启动批量发信') + (pend ? '（' + pend + ' 封待发）' : '') +
         '</button>' +
         '<button class="btn btn-ghost btn-wide" style="margin-top:7px" data-act="retry"' + (fail > 0 ? '' : ' disabled') + '>' +
           '🔄 重试发送失败的邮件 (' + fail + '封)' +
         '</button>' +
+        (isApi ? '<button class="btn btn-ghost btn-wide btn-sm" style="margin-top:7px" data-act="open-api">⚙️ 发送通道设置</button>' : '') +
         '<div class="divider" style="margin:12px 0"></div>' +
         '<p class="small muted" style="margin:0;line-height:1.8">' +
-          '妙妙会一封一封把邮件准备好：你点「打开邮箱客户端」发送，回来点「已发送」，进度自动记账。' +
-          (autoMode() ? '<br><b style="color:#2E7D4F">⚡ 已启用直发接口，可自动连发。</b>' : '') +
+          (isApi
+            ? '发送节奏按「云端 API 发送间隔」走，默认 1 秒一封，避免撞 Resend 的限流。中途可随时暂停。'
+            : '妙妙会一封一封把邮件准备好：你点「打开邮箱客户端」发送，回来点「已发送」，进度自动记账。') +
         '</p>';
       return;
     }
@@ -1500,6 +1643,8 @@
     const subj = fillTemplate(state.template.subject, row);
     const bodyText = fillTemplate(state.template.body, row);
     const badEmail = !EMAIL_RE.test(String(row.email || '').trim());
+    const mode = sendMode();
+    const isApi = mode !== 'manual';
 
     box.innerHTML =
       '<h3 class="sec-title">🚀 发信控制</h3>' +
@@ -1508,20 +1653,26 @@
         '<span>' + (ui.batch.mode === 'retry' ? '重试模式' : '正常模式') + ' · ' + ui.batch.batchNo + '</span>' +
         '<span>第 ' + Math.min(ui.batch.done + 1, ui.batch.total) + ' / ' + ui.batch.total + ' 封</span>' +
       '</div>' +
+      '<div class="small" style="display:flex;justify-content:space-between;margin-top:3px">' +
+        '<span style="color:#2E7D4F;font-weight:700">' + MODE_LABEL[mode] + '</span>' +
+        '<span class="muted">本轮 ✅ ' + (ui.batch.ok || 0) + ' · ❌ ' + (ui.batch.fail || 0) + '</span>' +
+      '</div>' +
 
       '<div class="cur-card">' +
         '<div class="cur-company">🏢 ' + (esc(row.company) || '(无公司名)') + '</div>' +
         '<div class="cur-mail">📧 ' + esc(row.email) + '</div>' +
         '<div class="cur-contact">🧑‍💼 ' + (esc(row.contact) || '—') + ' · 开头：' + esc(cleanGreeting(row.contact)) + '</div>' +
+        '<div class="cur-contact" style="margin-top:3px">📤 ' + esc(fromHeader() || '（未设置发件邮箱）') + '</div>' +
       '</div>' +
 
       (badEmail ? '<div class="note note-bad" style="margin-bottom:9px">⚠️ 这个邮箱格式看着不太对，建议直接标记失败跳过。</div>' : '') +
 
       '<div class="cd" id="cdChip">' +
         (ui.countdown > 0
-          ? '⏳ 建议休整 <b id="cdVal">' + ui.countdown + '</b> 秒再发下一封 · ' +
+          ? (isApi ? '☁️ 排队中，<b id="cdVal">' + ui.countdown + '</b> 秒后发出 · '
+                   : '⏳ 建议休整 <b id="cdVal">' + ui.countdown + '</b> 秒再发下一封 · ') +
             '<span data-act="skip-cd" style="cursor:pointer;text-decoration:underline;color:#C0392B">跳过等待</span>'
-          : '✅ 可以发了') +
+          : '✅ 已就绪') +
       '</div>' +
 
       '<div class="mail-prev">' +
@@ -1530,9 +1681,12 @@
       '</div>' +
 
       '<div class="btn-row">' +
-        '<button class="btn btn-soft" data-act="copy-current">📋 复制主题+正文</button>' +
-        '<button class="btn btn-primary" data-act="mailto">📨 打开邮箱客户端</button>' +
-        (autoMode() ? '<button class="btn btn-primary" data-act="hook-send">⚡ 立即直发这封</button>' : '') +
+        (isApi
+          ? '<button class="btn btn-primary" data-act="api-send" style="flex:1 1 100%">⚡ 立即云端发送这封</button>' +
+            '<button class="btn btn-soft" data-act="copy-current">📋 复制主题+正文</button>' +
+            '<button class="btn btn-ghost" data-act="mailto">📨 改用邮箱客户端</button>'
+          : '<button class="btn btn-soft" data-act="copy-current">📋 复制主题+正文</button>' +
+            '<button class="btn btn-primary" data-act="mailto">📨 打开邮箱客户端</button>') +
         '<button class="btn btn-ghost" data-act="mark-ok" style="color:#2E7D4F;border-color:#B7DCC8">✅ 标记已发送</button>' +
         '<button class="btn btn-ghost" data-act="mark-fail" style="color:#C0392B;border-color:#F0C4BD">⚠️ 标记失败</button>' +
         '<button class="btn btn-ghost" data-act="' + (ui.batch.paused ? 'resume' : 'pause') + '">' + (ui.batch.paused ? '▶ 继续' : '⏸ 暂停') + '</button>' +
@@ -1552,21 +1706,28 @@
         saveState();
       }
       ui.countdown--;
-      return;
+      if (ui.countdown > 0) return;
     }
 
     stopTimer();
     ui.ready = true;
     const chip = $('#cdChip');
-    if (chip) chip.innerHTML = '✅ 可以发了';
-    if (autoMode()) sendViaHook();
+    if (chip) chip.innerHTML = '✅ 已就绪';
+    if (autoMode()) sendViaApi();
   }
 
   function startCountdown() {
     stopTimer();
-    ui.countdown = randInt(state.risk.delayMin, state.risk.delayMax);
-    ui.ready = ui.countdown <= 0;
-    if (ui.countdown <= 0) { ui.ready = true; return; }
+    if (autoMode()) {
+      // 云端发送：按 API 间隔排队（Resend 免费版约 2 封/秒，至少 1 秒更稳）
+      const gap = Math.max(1, parseInt(state.risk.apiGap, 10) || 1);
+      ui.countdown = gap;
+      ui.ready = false;
+    } else {
+      ui.countdown = randInt(state.risk.delayMin, state.risk.delayMax);
+      ui.ready = ui.countdown <= 0;
+      if (ui.countdown <= 0) { ui.ready = true; return; }
+    }
     ui.timer = setInterval(tick, 1000);
   }
 
@@ -1639,10 +1800,12 @@
 
     ui.batch = {
       mode: mode, indices: indices, cursor: 0, done: 0, total: indices.length,
-      paused: false, batchNo: 'B' + (Object.keys(batchSet).length + 1)
+      paused: false, batchNo: 'B' + (Object.keys(batchSet).length + 1),
+      ok: 0, fail: 0
     };
     ui.sending = true;
     ui.flash = null;
+    ui.inflight = false;
     state.miao.streak = 0;
     saveState();
     paintAll();
@@ -1696,16 +1859,20 @@
 
     ui.flash = 'success';
     const today = statsFor(state.activeAccount).today;
-    if (today > 0 && today % 8 === 0) ui.newBottle = Math.min(9, Math.floor(today / 8) - 1);
+    const milestone = today > 0 && today % 8 === 0;
+    if (milestone) ui.newBottle = Math.min(9, Math.floor(today / 8) - 1);
+    if (ui.batch) ui.batch.ok = (ui.batch.ok || 0) + 1;
 
     saveState(true);
     if (!silent) toast('🍼 奶瓶 +1！(连击 ' + s + ')', '🍼');
-    fireConfetti(today > 0 && today % 8 === 0 ? 'bottle' : 'normal');
+    else if (milestone) toast('🍼 装满一瓶啦！今日第 ' + (today / 8 | 0) + ' 瓶', '🥳');
+    // 云端连发时只在奶瓶里程碑放彩带，避免刷屏
+    if (!silent || milestone) fireConfetti(milestone ? 'bottle' : 'normal');
     paintBanner(); paintKpis(); paintTable();
     advance();
   }
 
-  function markFail(reason) {
+  function markFail(reason, noAdvance) {
     const row = currentRow();
     if (!row) return;
     row.status = '发送失败';
@@ -1716,48 +1883,145 @@
     state.miao.mood = Math.max(0, (Number(state.miao.mood) || 0) - 10);
     state.miao.speech = rand(SPEECH.fail);
     ui.flash = 'fail';
+    if (ui.batch) ui.batch.fail = (ui.batch.fail || 0) + 1;
 
     saveState(true);
     toast('❌ 已标记失败：' + (reason || '未填写原因'), '😭');
     paintBanner(); paintKpis(); paintTable();
-    advance();
+    if (!noAdvance) advance();
   }
 
-  async function sendViaHook() {
+  /* ---------- 云端发送 ---------- */
+
+  function fromHeader() {
+    const acc = state.accounts[state.activeAccount] || {};
+    const name = String(acc.name || '').trim();
+    const email = String(state.activeAccount || '').trim();
+    if (!email) return '';
+    return name ? (name + ' <' + email + '>') : email;
+  }
+
+  // 把 fetch 异常翻译成人话（CORS 是最常见的坑）
+  function isNetworkError(e) {
+    const m = String((e && e.message) || e || '');
+    return (e && e.name === 'TypeError') || /Failed to fetch|NetworkError|Load failed|Network request failed/i.test(m);
+  }
+
+  function sendErrorText(e) {
+    if (isNetworkError(e)) {
+      return '网络请求被浏览器拦下了（CORS）。Resend 官方接口不返回跨域头，纯前端无法直连 —— 请展开「🧩 直连被 CORS 拦住？」用 15 行中转，把中转地址填进发送端点。';
+    }
+    const s = e && e.status;
+    if (s === 401) return 'API Key 无效（没复制完整，或已被删除/禁用）';
+    if (s === 403) return '这个 Key 没有发信权限，或发件域名未验证。建议用 Sending access 权限的 Key';
+    if (s === 422) return '被 Resend 拒绝：多半是发件域名没验证，或收件邮箱格式无效';
+    if (s === 429) return '触发频率限制（免费版约 2 封/秒），把「云端 API 发送间隔」调大一点';
+    if (s >= 500) return 'Resend 服务端异常（' + s + '），稍后重试';
+    return (e && e.message) ? e.message : '未知错误';
+  }
+
+  async function postMail(url, headers, body) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(body)
+    });
+    const raw = await res.text();
+    let json = null;
+    try { json = raw ? JSON.parse(raw) : null; } catch (e) { /* 非 JSON */ }
+    if (!res.ok) {
+      const msg = (json && (json.message || json.error)) || String(raw).slice(0, 180) || ('HTTP ' + res.status);
+      const err = new Error(msg);
+      err.status = res.status;
+      throw err;
+    }
+    return json;
+  }
+
+  function buildResendBody(row) {
+    const acc = state.accounts[state.activeAccount] || {};
+    const payload = {
+      from: fromHeader(),
+      to: [String(row.email || '').trim()],
+      subject: fillTemplate(state.template.subject, row),
+      text: fillTemplate(state.template.body, row)
+    };
+    const replyTo = String(acc.replyTo || '').trim();
+    if (replyTo) payload.reply_to = replyTo;
+    return payload;
+  }
+
+  async function sendViaApi() {
     const row = currentRow();
     if (!row) return;
-    const url = state.settings.hookUrl;
-    if (!url) { toast('还没配置直发接口地址', '⚠️'); return; }
+    const mode = sendMode();
+    if (mode === 'manual') {
+      toast('还没配置发送通道，先在设置里填 Resend Key', '⚠️');
+      return;
+    }
+    if (ui.inflight) return;
+    ui.inflight = true;
 
-    const payload = {
-      to: String(row.email || '').trim(),
-      subject: fillTemplate(state.template.subject, row),
-      body: fillTemplate(state.template.body, row),
-      from: state.activeAccount,
-      fromName: (state.accounts[state.activeAccount] && state.accounts[state.activeAccount].name) || 'Sales',
-      company: row.company || '',
-      contact: row.contact || ''
-    };
-
-    const headers = { 'Content-Type': 'application/json' };
-    if (state.settings.hookToken) headers['Authorization'] = 'Bearer ' + state.settings.hookToken;
-
-    toast('⚡ 正在通过直发接口发送…', '📡');
     try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) {
-        const txt = await res.text().catch(() => '');
-        throw new Error('HTTP ' + res.status + ' ' + String(txt).slice(0, 120));
+      if (mode === 'webhook') {
+        const payload = {
+          to: String(row.email || '').trim(),
+          subject: fillTemplate(state.template.subject, row),
+          body: fillTemplate(state.template.body, row),
+          from: state.activeAccount,
+          fromName: (state.accounts[state.activeAccount] && state.accounts[state.activeAccount].name) || 'Sales',
+          company: row.company || '',
+          contact: row.contact || ''
+        };
+        const headers = { 'Content-Type': 'application/json' };
+        if (state.settings.hookToken) headers['Authorization'] = 'Bearer ' + state.settings.hookToken;
+        await postMail(state.settings.hookUrl, headers, payload);
+      } else {
+        const endpoint = (state.settings.resendEndpoint || 'https://api.resend.com/emails').trim();
+        await postMail(endpoint, {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + String(state.settings.resendKey || '').trim()
+        }, buildResendBody(row));
       }
       markSuccess(true);
-      toast('直发成功，已自动记账', '✅');
     } catch (e) {
-      markFail('直发接口失败：' + (e && e.message ? e.message : '未知错误'));
+      const msg = sendErrorText(e);
+      if (isNetworkError(e)) {
+        // CORS/网络问题会让整份名单全军覆没 —— 第一封就刹车，别继续烧
+        markFail(msg, true);
+        stopBatch('❌ 网络被拦下，已暂停整轮发送。请在设置里按「CORS 中转」方案配好端点后重试。');
+      } else {
+        markFail(msg);
+      }
+    } finally {
+      ui.inflight = false;
     }
+  }
+
+  function testSend() {
+    const st = $('#sendState');
+    if (!state.activeAccount) { st.innerHTML = '<span style="color:#C0392B">先配发件身份</span>'; return; }
+    const key = ($('#resendKeyInput').value || '').trim();
+    if (!key) { st.innerHTML = '<span style="color:#C0392B">先填 Resend Key</span>'; return; }
+    const endpoint = ($('#resendEndpointInput').value || '').trim() || 'https://api.resend.com/emails';
+
+    st.innerHTML = '<span class="muted">发送中…</span>';
+    const body = {
+      from: fromHeader(),
+      to: [state.activeAccount],
+      subject: '【测试】给妙妙赚NeiNei 发送通道验证',
+      text: '爸爸，云端发信通道已经打通啦！\n\n这条是测试邮件，来自 ' + fromHeader() +
+            '。\n之后给客户发的每一封都会走同样的通道，去 Resend 后台就能看到投递记录。'
+    };
+    postMail(endpoint, {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + key
+    }, body).then(function () {
+      st.innerHTML = '<span style="color:#2E7D4F;font-weight:700">✅ 已投递，去收件箱看看</span>';
+      toast('测试邮件已发出，去收件箱（含垃圾箱）看看', '📨');
+    }).catch(function (e) {
+      st.innerHTML = '<span style="color:#C0392B">❌ ' + esc(String(sendErrorText(e)).slice(0, 80)) + '</span>';
+    });
   }
 
   function mailtoFor(row) {
@@ -1983,11 +2247,31 @@
     if (sel.value === '__new__') {
       $('#accEmail').value = '';
       $('#accName').value = 'Sales';
+      $('#accReplyTo').value = '';
     } else {
       const a = state.accounts[sel.value] || {};
       $('#accEmail').value = sel.value;
       $('#accName').value = a.name || 'Sales';
+      $('#accReplyTo').value = a.replyTo || '';
     }
+    paintDomainHint();
+  }
+
+  function paintDomainHint() {
+    const hint = $('#accDomainHint');
+    if (!hint) return;
+    const email = ($('#accEmail').value || '').trim();
+    const dom = email.indexOf('@') >= 0 ? email.split('@').pop() : '';
+    if (!dom) {
+      hint.innerHTML = '📮 云端发送时，这个邮箱就是邮件的 <b>From</b>，必须在 Resend 里验证过对应域名才能发出去。';
+      return;
+    }
+    if (/resend\.dev$/i.test(dom)) {
+      hint.innerHTML = '🧪 你用的是 Resend 测试域名 <b>' + esc(dom) + '</b>：只能发到你注册 Resend 的那个邮箱，适合先跑通流程。';
+      return;
+    }
+    hint.innerHTML = '📮 发件域名 <b>@' + esc(dom) + '</b> —— 需要在 Resend 验证过（DNS 加 SPF / DKIM）才能发出去。' +
+      '<br><a href="https://resend.com/domains" target="_blank" rel="noopener">去检查域名状态 →</a>';
   }
 
   function syncFormFromState() {
@@ -1997,26 +2281,43 @@
     $('#domainLimit').value = state.risk.domainLimit;
     $('#delayMin').value = state.risk.delayMin;
     $('#delayMax').value = state.risk.delayMax;
+    $('#apiGap').value = state.risk.apiGap;
     $('#apiKeyInput').value = state.settings.apiKey || '';
     $('#apiBaseInput').value = state.settings.apiBase || '';
     $('#apiModelInput').value = state.settings.model || '';
+    $('#resendKeyInput').value = state.settings.resendKey || '';
+    $('#resendEndpointInput').value = state.settings.resendEndpoint || 'https://api.resend.com/emails';
     $('#hookUrl').value = state.settings.hookUrl || '';
     $('#hookToken').value = state.settings.hookToken || '';
-    $('#useHook').checked = !!state.settings.useHook;
+    $('#workerCode').textContent = WORKER_CODE;
+    paintApiModal();
     paintAccounts();
     paintKeyState();
     paintPreview();
   }
 
+  function paintApiModal() {
+    const p = state.settings.sendProvider || 'resend';
+    const r = $('#provResend'), h = $('#provHook');
+    if (!r || !h) return;
+    r.className = 'btn btn-sm ' + (p === 'resend' ? 'active' : 'btn-ghost');
+    h.className = 'btn btn-sm ' + (p === 'webhook' ? 'active' : 'btn-ghost');
+    $('#resendBox').classList.toggle('hidden', p !== 'resend');
+    $('#hookBox').classList.toggle('hidden', p !== 'webhook');
+    const fp = $('#fromPreview');
+    if (fp) fp.textContent = fromHeader() || '（还没配置发件身份）';
+  }
+
   function paintKeyState() {
-    const has = !!(state.settings.apiKey && state.settings.apiKey.trim());
+    const aiOn = !!(state.settings.apiKey && state.settings.apiKey.trim());
+    const mode = sendMode();
     const dot = $('#keyDot');
-    dot.style.color = has ? '#2E7D4F' : '#C7D2CB';
-    $('#keyStateText').textContent = has
-      ? '已配置 · ' + (state.settings.model || 'deepseek-chat')
-      : '未配置 · 只存本机浏览器';
+    dot.style.color = mode === 'manual' ? '#E65100' : '#2E7D4F';
+    $('#keyStateText').textContent = mode === 'manual'
+      ? (aiOn ? '人工发送模式 · AI 已就绪' : '人工发送模式 · 点这里配置')
+      : MODE_LABEL[mode] + ' · 可直接批量发';
     const badge = $('#engineBadge');
-    badge.innerHTML = '<span class="dot"></span> 发送引擎：' + (autoMode() ? '直发接口' : '邮箱客户端');
+    badge.innerHTML = '<span class="dot"></span> ' + MODE_LABEL[mode];
     badge.className = 'badge ' + (autoMode() ? 'badge-soft' : 'badge-gray');
   }
 
@@ -2183,6 +2484,8 @@
   function openApi() {
     syncFormFromState();
     $('#apiState').innerHTML = '';
+    const ss = $('#sendState');
+    if (ss) ss.innerHTML = '';
     $('#apiModal').classList.remove('hidden');
   }
 
@@ -2202,20 +2505,39 @@
         state.settings.apiKey = $('#apiKeyInput').value.trim();
         state.settings.apiBase = $('#apiBaseInput').value.trim() || 'https://api.deepseek.com';
         state.settings.model = $('#apiModelInput').value.trim() || 'deepseek-chat';
+        state.settings.resendKey = $('#resendKeyInput').value.trim();
+        state.settings.resendEndpoint = $('#resendEndpointInput').value.trim() || 'https://api.resend.com/emails';
         state.settings.hookUrl = $('#hookUrl').value.trim();
         state.settings.hookToken = $('#hookToken').value.trim();
-        state.settings.useHook = $('#useHook').checked;
         saveState(true);
-        paintKeyState(); paintSendPanel();
+        paintKeyState(); paintSendPanel(); paintApiModal();
         $('#apiModal').classList.add('hidden');
-        toast('设置已保存到本机', '🔑');
+        const m = sendMode();
+        toast(m === 'manual' ? '已保存（还未配置云端发送，当前是人工模式）' : '已保存，发送通道：' + MODE_LABEL[m], '✅');
+        break;
+      }
+      case 'set-provider': {
+        state.settings.sendProvider = t.getAttribute('data-provider') || 'resend';
+        saveState(true);
+        paintApiModal();
+        break;
+      }
+      case 'toggle-resend': {
+        const inp = $('#resendKeyInput');
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+        break;
+      }
+      case 'test-send': testSend(); break;
+      case 'copy-worker': {
+        const ok = await copyText(WORKER_CODE);
+        toast(ok ? 'Worker 代码已复制，去 Cloudflare 新建 Worker 粘贴' : '复制失败，请手动选中代码', ok ? '📋' : '⚠️');
         break;
       }
       case 'clear-key': {
         state.settings.apiKey = '';
         $('#apiKeyInput').value = '';
         saveState(true); paintKeyState();
-        toast('密钥已清除', '🧹');
+        toast('AI 密钥已清除', '🧹');
         break;
       }
       case 'toggle-pwd': {
@@ -2235,11 +2557,13 @@
       case 'save-acc': {
         const email = $('#accEmail').value.trim();
         const name = $('#accName').value.trim() || 'Sales';
+        const replyTo = $('#accReplyTo').value.trim();
         if (!EMAIL_RE.test(email)) { toast('邮箱格式看着不对，检查一下~', '⚠️'); break; }
-        state.accounts[email] = { name: name };
+        if (replyTo && !EMAIL_RE.test(replyTo)) { toast('回信地址格式不对', '⚠️'); break; }
+        state.accounts[email] = { name: name, replyTo: replyTo };
         state.activeAccount = email;
         saveState(true);
-        paintAccounts(); paintAll();
+        paintAccounts(); paintAll(); paintApiModal();
         toast('账号已保存：' + email, '💾');
         break;
       }
@@ -2410,13 +2734,17 @@
         markFail(reason);
         break;
       }
-      case 'hook-send': {
+      case 'api-send': {
         if (ui.countdown > 0) {
-          const ok = await confirmDialog('还没到休整时间', '距离建议的随机延迟还有 <b>' + ui.countdown + '</b> 秒，确定现在直发？', '现在发', false);
+          const ok = await confirmDialog(
+            '还没到发送间隔',
+            '距离下一封还有 <b>' + ui.countdown + '</b> 秒。发得太快容易撞 Resend 的限流（429），确定现在就发？',
+            '现在发', false
+          );
           if (!ok) break;
         }
         stopTimer(); ui.countdown = 0;
-        sendViaHook();
+        sendViaApi();
         break;
       }
       case 'poke': pokeMiao(e); break;
@@ -2491,6 +2819,9 @@
     numBind('#domainLimit', 'domainLimit', 1);
     numBind('#delayMin', 'delayMin', 0);
     numBind('#delayMax', 'delayMax', 0);
+    numBind('#apiGap', 'apiGap', 1);
+
+    $('#accEmail').addEventListener('input', paintDomainHint);
 
     $('#cfOk').addEventListener('click', () => closeConfirm(true));
     $('#cfCancel').addEventListener('click', () => closeConfirm(false));
